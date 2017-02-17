@@ -9,6 +9,7 @@ import com.arif.model.AddProjectModel;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
+import com.arif.model.ScrumDetails;
 import com.fdu.impl.AddAssociateImpl;
 import com.fdu.impl.ScrumBoardImpl;
 import com.fdu.impl.ScrumOperationsImpl;
@@ -67,6 +68,16 @@ public interface ScrumBoard extends DBConnection {
 	 * @return
 	 */
 	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectName);
+
+	/**
+	 * Save daily Scrum updates of an associate
+	 * 
+	 * @param scrumDetail
+	 * @param date
+	 * @param projectName
+	 * @return
+	 */
+	ScrumBoardResponse<?> saveDailyScrumUpdate(ScrumDetails scrumDetail, String date, String projectName);
 
 	/**
 	 * Java 8 feature.<br/>

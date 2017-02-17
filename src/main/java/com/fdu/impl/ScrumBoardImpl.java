@@ -8,6 +8,7 @@ import com.arif.model.AddProjectModel;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
+import com.arif.model.ScrumDetails;
 import com.fdu.response.ScrumBoardResponse;
 import com.mongodb.MongoException;
 
@@ -70,6 +71,22 @@ public class ScrumBoardImpl implements ScrumBoard {
 				response.setResponse(scrumDetails);
 			}			
 			return response;
+		} catch (Exception exception) {
+			response = new ScrumBoardResponse<>();
+			response.setCode(500);
+			response.setMessage("Internal Server Error");
+		}
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<?> saveDailyScrumUpdate(ScrumDetails scrumDetails, String date, String projectName) {
+		ScrumBoardResponse<Scrum> response = null;
+		try {
+			getScrumOperationsInstance().saveDailyScrumUpdate(scrumDetails, date, projectName);
+			response = new ScrumBoardResponse<>();
+			response.setCode(200);
+			response.setMessage("Saved");
 		} catch (Exception exception) {
 			response = new ScrumBoardResponse<>();
 			response.setCode(500);

@@ -62,8 +62,18 @@ public interface ScrumOperations {
 	 * @param scrumDate
 	 *            Scrum date
 	 * @param projectName
-	 *            Project name           
+	 *            Project name
 	 * @return
 	 */
 	List<Scrum> getScrumDetails(String scrumDate, String projectName);
+
+	/**
+	 * Save daily Scrum update of an associate
+	 * 
+	 * @param scrum
+	 * @param associateId
+	 * @param projectName
+	 * @return
+	 */
+	void saveDailyScrumUpdate(ScrumDetails scrumDetails, String date, String projectName);
 }

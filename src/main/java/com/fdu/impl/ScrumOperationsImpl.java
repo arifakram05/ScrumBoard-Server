@@ -1,5 +1,6 @@
 package com.fdu.impl;
 
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
@@ -140,6 +141,27 @@ public class ScrumOperationsImpl implements ScrumOperations {
 		return scrumDetailsList;
 	}
 
+	@Override
+	public void saveDailyScrumUpdate(ScrumDetails scrumDetails, String date, String projectName) {
+		// get collection
+		MongoCollection<Document> scrumCollection = database.getCollection(projectName);
+
+		// create document to save
+		Document document = new Document();
+		/*document.put("associateId", scrumDetails.getAssociateId());
+		document.put("associateName", scrumDetails.getAssociateName());*/
+		document.put("scrumDetails.$.yesterday", scrumDetails.getYesterday());
+		document.put("scrumDetails.$.today", scrumDetails.getToday());
+		document.put("scrumDetails.$.roadblocks", scrumDetails.getRoadblocks());
+		
+		Document command = new Document();
+		command.put("$set", document);
+
+		// update command
+		//scrumCollection.updateOne(and(eq("actualDate", date), eq("scrumDetails.associateId", scrumDetails.getAssociateId())), document);
+		scrumCollection.updateOne(and(eq("actualDate", date), eq("scrumDetails.associateId", scrumDetails.getAssociateId())), command);
+	}
+
 	// TODO This method needs performance improvement
 	private static List<String> getAllDatesBetweenTwoDates(String startDate, String endDate) throws ParseException {
 		List<String> daysListAsStrings = new ArrayList<String>();
@@ -188,6 +210,6 @@ public class ScrumOperationsImpl implements ScrumOperations {
 		document.put("roadblocks", scrumDetails.getRoadblocks());
 
 		return document;
-	}	
+	}		
 
 }

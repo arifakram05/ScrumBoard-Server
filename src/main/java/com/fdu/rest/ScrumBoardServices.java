@@ -23,6 +23,7 @@ import com.arif.model.AddProjectModel;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
+import com.arif.model.ScrumDetails;
 import com.arif.util.SecureLogin;
 import com.fdu.response.ScrumBoardResponse;
 import com.sun.jersey.multipart.FormDataParam;
@@ -202,6 +203,28 @@ public class ScrumBoardServices {
 	public ScrumBoardResponse<Scrum> getScrumDetails(@QueryParam("scrumDate") String scrumDate,
 			@QueryParam("projectName") String projectName) {
 		return ScrumBoard.getInstance().getScrumDetails(scrumDate, projectName);
+	}
+
+	/**
+	 * Update targets for the day.
+	 * 
+	 * @param formData
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
+	@POST
+	@Path("/scrumupdate")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<?> dailyScrumUpdate(@FormDataParam("scrumDetails") String formData,
+			@FormDataParam("date") String date, @FormDataParam("projectName") String projectName)
+			throws JsonParseException, JsonMappingException, IOException {
+
+		ScrumDetails scrumDetails = new ObjectMapper().readValue(formData, ScrumDetails.class);
+
+		return ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date, projectName);
 	}
 
 }
