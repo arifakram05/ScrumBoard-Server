@@ -14,6 +14,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -30,6 +31,8 @@ import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/services")
 public class ScrumBoardServices {
+
+	final static Logger logger = Logger.getLogger(ScrumBoardServices.class);
 
 	/**
 	 * Validate user credentials and log-in
@@ -202,6 +205,12 @@ public class ScrumBoardServices {
 	// TODO Accept an array of project names
 	public ScrumBoardResponse<Scrum> getScrumDetails(@QueryParam("scrumDate") String scrumDate,
 			@QueryParam("projectName") String projectName) {
+		logger.debug("Request received for /scrumdetails URI");
+		try {
+			throw new Exception();
+		} catch (Exception ex) {
+			logger.error("Exception occurred in /scrumdetails URI");
+		}
 		return ScrumBoard.getInstance().getScrumDetails(scrumDate, projectName);
 	}
 
