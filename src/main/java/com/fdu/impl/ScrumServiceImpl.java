@@ -19,7 +19,8 @@ import java.util.Locale;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.arif.interfaces.ScrumOperations;
+import com.arif.exception.ScrumBoardException;
+import com.arif.interfaces.ScrumService;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.mongodb.BasicDBObject;
@@ -28,11 +29,11 @@ import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class ScrumOperationsImpl implements ScrumOperations {
+public class ScrumServiceImpl implements ScrumService {
 
 	MongoDatabase database;
 
-	public ScrumOperationsImpl(MongoDatabase database) {
+	public ScrumServiceImpl(MongoDatabase database) {
 		super();
 		this.database = database;
 	}
@@ -210,6 +211,12 @@ public class ScrumOperationsImpl implements ScrumOperations {
 		document.put("roadblocks", scrumDetails.getRoadblocks());
 
 		return document;
+	}
+
+	@Override
+	public void validateInput(Scrum scrum) throws ScrumBoardException {
+		// TODO Auto-generated method stub
+		
 	}		
 
 }

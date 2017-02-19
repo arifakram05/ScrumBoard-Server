@@ -7,7 +7,8 @@ import java.util.List;
 
 import org.bson.Document;
 
-import com.arif.interfaces.AddAssociate;
+import com.arif.exception.ScrumBoardException;
+import com.arif.interfaces.AssociateService;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.mongodb.BasicDBObject;
@@ -15,11 +16,11 @@ import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class AddAssociateImpl implements AddAssociate {
+public class AssociateServiceImpl implements AssociateService {
 
 	MongoDatabase database;
 
-	public AddAssociateImpl(MongoDatabase database) {
+	public AssociateServiceImpl(MongoDatabase database) {
 		super();
 		this.database = database;
 	}
@@ -76,6 +77,7 @@ public class AddAssociateImpl implements AddAssociate {
 	 * @return
 	 */
 	//This needs go into Project class
+	//Project ID needs to be generated
 	private DBObject getBsonFromPojo(Project project) {
 		BasicDBObject document = new BasicDBObject();
 
@@ -83,6 +85,12 @@ public class AddAssociateImpl implements AddAssociate {
 		document.put("projectId", "1");
 
 		return document;
+	}
+
+	@Override
+	public void validateInput(Associate associate) throws ScrumBoardException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

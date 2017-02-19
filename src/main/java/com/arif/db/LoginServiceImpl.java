@@ -9,16 +9,18 @@ import java.util.List;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.arif.exception.ScrumBoardException;
+import com.arif.interfaces.LoginService;
 import com.arif.model.Associate;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class LoginDBService {
+public class LoginServiceImpl implements LoginService {
 
 	MongoDatabase database;
 
-	public LoginDBService(MongoDatabase database) {
+	public LoginServiceImpl(MongoDatabase database) {
 		super();
 		this.database = database;
 	}
@@ -69,5 +71,11 @@ public class LoginDBService {
 		}
 
 		return associateList.get(0);
+	}
+
+	@Override
+	public void validateInput(String associateId) throws ScrumBoardException {
+		// TODO Auto-generated method stub
+		
 	}
 }

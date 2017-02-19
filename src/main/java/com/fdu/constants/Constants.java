@@ -2,6 +2,9 @@ package com.fdu.constants;
 
 public enum Constants {
 
+	//Secret key
+	SECRETKEY("!SeCreTk3yBy$Ar1FAkRaM$"),
+	
 	//LABASSISTANT AND JOBAPPLICANT
 	FIRSTNAME("firstName"),
 	LASTNAME("lastName"),

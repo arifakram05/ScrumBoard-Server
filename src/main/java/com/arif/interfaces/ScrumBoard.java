@@ -1,18 +1,13 @@
 package com.arif.interfaces;
 
-import java.util.List;
-
-import com.arif.db.AddProjectDBService;
-import com.arif.db.FetchAllProjectsDBService;
-import com.arif.db.LoginDBService;
-import com.arif.model.AddProjectModel;
+import com.arif.db.LoginServiceImpl;
+import com.arif.db.ProjectServiceImpl;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
-import com.arif.model.ScrumDetails;
-import com.fdu.impl.AddAssociateImpl;
+import com.fdu.impl.AssociateServiceImpl;
 import com.fdu.impl.ScrumBoardImpl;
-import com.fdu.impl.ScrumOperationsImpl;
+import com.fdu.impl.ScrumServiceImpl;
 import com.fdu.response.ScrumBoardResponse;
 
 public interface ScrumBoard extends DBConnection {
@@ -23,7 +18,7 @@ public interface ScrumBoard extends DBConnection {
 	 * @param associateId
 	 * @return
 	 */
-	Associate login(String associateId);
+	ScrumBoardResponse<Associate> login(String associateId);
 
 	/**
 	 * add a new project
@@ -31,14 +26,14 @@ public interface ScrumBoard extends DBConnection {
 	 * @param projectDetails
 	 * @return
 	 */
-	boolean addProject(AddProjectModel projectDetails);
+	ScrumBoardResponse<?> addProject(String projectName, String associateId, String token);
 
 	/**
 	 * get all projects
 	 * 
 	 * @return
 	 */
-	List<Project> getAllProjects();
+	ScrumBoardResponse<Project> getAllProjects();
 
 	/**
 	 * Add an associate to the system
@@ -47,7 +42,7 @@ public interface ScrumBoard extends DBConnection {
 	 *            {@link Associate} details
 	 * @return
 	 */
-	ScrumBoardResponse<?> addAssociate(Associate associate);
+	ScrumBoardResponse<?> addAssociate(String associateDetails, String associateId, String token);
 
 	/**
 	 * Add Scrum to the system
@@ -56,7 +51,7 @@ public interface ScrumBoard extends DBConnection {
 	 *            {@link Scrum} detail
 	 * @return
 	 */
-	ScrumBoardResponse<?> addScrum(Scrum associate);
+	ScrumBoardResponse<?> addScrum(String scrumDetails, String associateId, String token);
 
 	/**
 	 * Get Scrum details for a given date and project
@@ -67,7 +62,7 @@ public interface ScrumBoard extends DBConnection {
 	 *            Project name
 	 * @return
 	 */
-	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectName);
+	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectName, String associateId, String token);
 
 	/**
 	 * Save daily Scrum updates of an associate
@@ -77,7 +72,7 @@ public interface ScrumBoard extends DBConnection {
 	 * @param projectName
 	 * @return
 	 */
-	ScrumBoardResponse<?> saveDailyScrumUpdate(ScrumDetails scrumDetail, String date, String projectName);
+	ScrumBoardResponse<?> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token);
 
 	/**
 	 * Java 8 feature.<br/>
@@ -95,24 +90,20 @@ public interface ScrumBoard extends DBConnection {
 	 * services this system offers
 	 */
 
-	default LoginDBService getLoginDBServiceInstance() {
-		return new LoginDBService(getDBConnection());
+	default LoginService getLoginServiceInstance() {
+		return new LoginServiceImpl(getDBConnection());
 	}
 
-	default AddProjectDBService getAddProjectDBServiceInstance() {
-		return new AddProjectDBService(getDBConnection());
+	default ProjectService getProjectServiceInstance() {
+		return new ProjectServiceImpl(getDBConnection());
 	}
 
-	default FetchAllProjectsDBService getFetchAllProjectsDBServiceInstance() {
-		return new FetchAllProjectsDBService(getDBConnection());
+	default AssociateService getAssociateServiceInstance() {
+		return new AssociateServiceImpl(getDBConnection());
 	}
 
-	default AddAssociate getAddAssociateInstance() {
-		return new AddAssociateImpl(getDBConnection());
-	}
-
-	default ScrumOperations getScrumOperationsInstance() {
-		return new ScrumOperationsImpl(getDBConnection());
+	default ScrumService getScrumServiceInstance() {
+		return new ScrumServiceImpl(getDBConnection());
 	}
 
 }

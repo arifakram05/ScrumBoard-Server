@@ -10,6 +10,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.log4j.Logger;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -17,16 +19,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class SecureLogin {
 
+	final static Logger LOGGER = Logger.getLogger(SecureLogin.class);
 	private static SecretKey secretKey = null;
 	private static String encodedSecretKey = null;
-
-	/*
-	 * public static void main(String args[]) throws NoSuchAlgorithmException {
-	 * String token = SecureLogin.createJWT("046752", 120000);
-	 * SecureLogin.parseJWT(token);
-	 * System.out.println("Is token valid : "+SecureLogin.isTokenValid(token,
-	 * "046752")); }
-	 */
 
 	/**
 	 * Construct a JWT token
@@ -97,13 +92,8 @@ public class SecureLogin {
 	 * @return boolean value indication the validity of provided associate ID
 	 */
 	public static boolean isTokenValid(String token, String associateIdToVerify) {
-		String knownAssociateId = null;
-		try {
-			knownAssociateId = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody().getId();
-		} catch (Exception exception) {
-			exception.printStackTrace();
-			return false;
-		}
+		String knownAssociateId = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody().getId();
+		LOGGER.info("Verifying token for associate "+associateIdToVerify);
 		return associateIdToVerify.equals(knownAssociateId);
 	}
 

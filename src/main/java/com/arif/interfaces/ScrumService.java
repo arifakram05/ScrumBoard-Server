@@ -3,19 +3,35 @@ package com.arif.interfaces;
 import java.text.ParseException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import com.arif.exception.ScrumBoardException;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.fdu.response.ScrumBoardResponse;
 
-public interface ScrumOperations {
+public interface ScrumService {
+
+	final static Logger LOGGER = Logger.getLogger(ScrumService.class);
 
 	default ScrumBoardResponse<?> addScrum(Scrum scrum) throws ParseException {
 		ScrumBoardResponse<?> response = new ScrumBoardResponse<>();
-		// 1. verify that no Scrum exists during the given dates
+		// 1. validate the input
+		try {
+			validateInput(scrum);
+			LOGGER.debug("Input validated - OK");
+		} catch (ScrumBoardException e) {
+			LOGGER.error("User Input Not Valid ", e);
+			// construct message with error details
+			response.setCode(404);
+			response.setMessage("Scrum details cannot contain special characters");
+			return response;
+		}
+		// 2. verify that no Scrum exists during the given dates
 		if (!isScrumExists(scrum)) {
-			// 2. create ScrumDetails list
+			// 3. create ScrumDetails list
 			List<ScrumDetails> scrumDetailsList = createScrumDetails(scrum.getProjectName());
-			// 3. add Scrum to the system
+			// 4. add Scrum to the system
 			scrum.setScrumDetails(scrumDetailsList);
 			authorizeScrum(scrum);
 			// send success response
@@ -23,12 +39,14 @@ public interface ScrumOperations {
 			response.setMessage("Scrum Added Successfully");
 			return response;
 		}
-		// if associate exists already
+		// if Scrum exists already
 		response.setCode(404);
 		response.setMessage(
-				"Scrum already exists for one or more given dates. You can only have one Scrum associated with any given date. Please verify and re-submit");
+				"Scrum already exists for one or more given dates. You can only have one Scrum associated with any given dates. Please verify and re-submit");
 		return response;
 	}
+
+	void validateInput(Scrum scrum) throws ScrumBoardException;
 
 	/**
 	 * check if Scrum already exists during given dates
