@@ -21,6 +21,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ScrumService;
+import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.mongodb.BasicDBObject;
@@ -119,25 +120,11 @@ public class ScrumServiceImpl implements ScrumService {
 	}
 
 	@Override
-	public List<Scrum> getScrumDetails(String scrumDate, String projectName) {
+	public List<Scrum> getScrumDetails(String scrumDate, List<Project> projectList) {
 		// list to store details of associates that belong to given project
 		List<Scrum> scrumDetailsList = new ArrayList<>();
-		// get collection
-		MongoCollection<Document> scrumDetailsCollection = database.getCollection(projectName);
-		// process each retrieved record
-		Block<Document> processRetreivedData = (document) -> {
-
-			String retrivedDataAsJSON = document.toJson();
-			Scrum scrumDetails;
-			try {
-				scrumDetails = new ObjectMapper().readValue(retrivedDataAsJSON, Scrum.class);
-				scrumDetailsList.add(scrumDetails);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		};
-		// query
-		scrumDetailsCollection.find(eq("actualDate", scrumDate)).projection(fields(include("scrumDetails"), excludeId())).forEach(processRetreivedData);
+		// iterate over projectList using Lambda
+		projectList.forEach(project -> processEachProjectForScrumDetails(scrumDate, project, scrumDetailsList));
 		
 		return scrumDetailsList;
 	}
@@ -163,6 +150,28 @@ public class ScrumServiceImpl implements ScrumService {
 		scrumCollection.updateOne(and(eq("actualDate", date), eq("scrumDetails.associateId", scrumDetails.getAssociateId())), command);
 	}
 
+	private void processEachProjectForScrumDetails(String scrumDate, Project project, List<Scrum> scrumDetailsList) {
+		// get collection
+		MongoCollection<Document> scrumDetailsCollection = database.getCollection(project.getProjectName());		
+		// process each retrieved record
+		Block<Document> processRetreivedData = (document) -> {
+
+			String retrivedDataAsJSON = document.toJson();
+			Scrum scrumDetails;
+			try {
+				scrumDetails = new ObjectMapper().readValue(retrivedDataAsJSON, Scrum.class);
+				//add project name
+				scrumDetails.setProjectName(project.getProjectName());
+				scrumDetailsList.add(scrumDetails);
+			} catch (IOException e) {
+				LOGGER.error("Error while processing retrieved scrum details");
+			}
+		};
+		// query
+		scrumDetailsCollection.find(eq("actualDate", scrumDate)).projection(fields(include("scrumDetails", "actualDate", "startDate", "endDate", "scrumName"), excludeId())).forEach(processRetreivedData);
+	} 
+
+	
 	// TODO This method needs performance improvement
 	private static List<String> getAllDatesBetweenTwoDates(String startDate, String endDate) throws ParseException {
 		List<String> daysListAsStrings = new ArrayList<String>();

@@ -62,7 +62,7 @@ public interface ScrumBoard extends DBConnection {
 	 *            Project name
 	 * @return
 	 */
-	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectName, String associateId, String token);
+	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectList, String associateId, String token);
 
 	/**
 	 * Save daily Scrum updates of an associate

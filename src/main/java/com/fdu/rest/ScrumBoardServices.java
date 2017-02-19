@@ -8,7 +8,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -127,13 +126,15 @@ public class ScrumBoardServices {
 	 * 
 	 * @return
 	 */
-	@GET
+	@POST
 	@Path("/scrumdetails")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	// TODO Accept an array of project names
-	public ScrumBoardResponse<Scrum> getScrumDetails(@QueryParam("scrumDate") String scrumDate,
-			@QueryParam("projectName") String projectName, @QueryParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
-		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getScrumDetails(scrumDate, projectName, associateId, token);
+	public ScrumBoardResponse<Scrum> getScrumDetails(@FormDataParam("scrumDate") String scrumDate,
+			@FormDataParam("projectList") String projectList, @FormDataParam("associateId") String associateId,
+			@HeaderParam("Authorization") String token) {
+
+		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getScrumDetails(scrumDate, projectList, associateId, token);
 		return response;
 	}
 

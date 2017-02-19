@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.arif.exception.ScrumBoardException;
+import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.fdu.response.ScrumBoardResponse;
@@ -83,7 +84,7 @@ public interface ScrumService {
 	 *            Project name
 	 * @return
 	 */
-	List<Scrum> getScrumDetails(String scrumDate, String projectName);
+	List<Scrum> getScrumDetails(String scrumDate, List<Project> projectList);
 
 	/**
 	 * Save daily Scrum update of an associate

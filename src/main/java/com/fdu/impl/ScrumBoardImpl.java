@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
 
 import com.arif.interfaces.LoginService;
 import com.arif.interfaces.ScrumBoard;
@@ -137,15 +138,18 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
-	public ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectName, String associateId, String token) {
+	public ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectList, String associateId, String token) {
 		ScrumBoardResponse<Scrum> response = null;
 		List<Scrum> scrumDetails;
+		List<Project> projects;
 		try {
 			//validate token
 			if (validateToken(token, associateId)) {
 				//as token is valid, proceed with request
 				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
-				scrumDetails = getScrumServiceInstance().getScrumDetails(scrumDate, projectName);
+				//convert JSON to POJO
+				projects = new ObjectMapper().readValue(projectList, TypeFactory.collectionType(List.class, Project.class));
+				scrumDetails = getScrumServiceInstance().getScrumDetails(scrumDate, projects);
 				response = new ScrumBoardResponse<>();
 				response.setCode(200);
 				if(scrumDetails.isEmpty()) {
