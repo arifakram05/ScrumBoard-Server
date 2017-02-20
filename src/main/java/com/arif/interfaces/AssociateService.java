@@ -25,6 +25,7 @@ public interface AssociateService {
 		}
 		// 2. check if associate exists in the system
 		if (!isAssociateExists(associate)) {
+			LOGGER.info("Adding new associate - "+associate.getAssociateId());
 			// If associates does not exist, do the following
 			// 3. index record for fast search
 			index(associate);
@@ -35,9 +36,13 @@ public interface AssociateService {
 			response.setMessage("Associate Added Successfully");
 			return response;
 		}
-		// if associate exists already
-		response.setCode(404);
-		response.setMessage("Associate already exists in the system. You can proceed to  project assignment");
+		// as associate already exists, perform update
+		// i.e. take all not-null details provided by the user, and update the details of given associate id
+		// 3. Update associate
+		LOGGER.info("Associate - "+associate.getAssociateId()+" - already exists, so proceeding with updating user details");
+		updateAssociate(associate);
+		response.setCode(200);
+		response.setMessage("Associate already exists in the system. So, updated the associate with given details");
 		return response;
 	}
 
@@ -62,4 +67,11 @@ public interface AssociateService {
 	 */
 	void authorizeAssociate(Associate associate);
 
+	/**
+	 * Update associate
+	 * 
+	 * @param associate
+	 *            Associate to update
+	 */
+	void updateAssociate(Associate associate);
 }

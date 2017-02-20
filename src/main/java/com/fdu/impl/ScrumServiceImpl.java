@@ -135,18 +135,16 @@ public class ScrumServiceImpl implements ScrumService {
 		MongoCollection<Document> scrumCollection = database.getCollection(projectName);
 
 		// create document to save
-		Document document = new Document();
-		/*document.put("associateId", scrumDetails.getAssociateId());
-		document.put("associateName", scrumDetails.getAssociateName());*/
-		document.put("scrumDetails.$.yesterday", scrumDetails.getYesterday());
-		document.put("scrumDetails.$.today", scrumDetails.getToday());
-		document.put("scrumDetails.$.roadblocks", scrumDetails.getRoadblocks());
+		Document detailsToUpdate = new Document();
+		/*document.put("associateName", scrumDetails.getAssociateName());*/
+		detailsToUpdate.put("scrumDetails.$.yesterday", scrumDetails.getYesterday());
+		detailsToUpdate.put("scrumDetails.$.today", scrumDetails.getToday());
+		detailsToUpdate.put("scrumDetails.$.roadblocks", scrumDetails.getRoadblocks());
 		
 		Document command = new Document();
-		command.put("$set", document);
+		command.put("$set", detailsToUpdate);
 
 		// update command
-		//scrumCollection.updateOne(and(eq("actualDate", date), eq("scrumDetails.associateId", scrumDetails.getAssociateId())), document);
 		scrumCollection.updateOne(and(eq("actualDate", date), eq("scrumDetails.associateId", scrumDetails.getAssociateId())), command);
 	}
 

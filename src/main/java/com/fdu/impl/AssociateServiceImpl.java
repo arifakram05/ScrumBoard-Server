@@ -15,6 +15,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 
 public class AssociateServiceImpl implements AssociateService {
 
@@ -71,7 +72,8 @@ public class AssociateServiceImpl implements AssociateService {
 	}
 
 	/**
-	 * Add BSON behavior for the document
+	 * Add BSON behavior for the document<br/>
+	 * Returns a DBObject that encapsulates given Project
 	 * 
 	 * @param project
 	 * @return
@@ -87,10 +89,60 @@ public class AssociateServiceImpl implements AssociateService {
 		return document;
 	}
 
+	private void processProject(Project project, List<DBObject> projectList) {
+		DBObject bsonProject = getBsonFromPojo(project);
+		projectList.add(bsonProject);
+	}
+
 	@Override
 	public void validateInput(Associate associate) throws ScrumBoardException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void updateAssociate(Associate associate) {
+		// get collection
+		MongoCollection<Document> associatesCollection = database.getCollection("associates");
+
+		// create document to save
+		Document associateDetailsDocument = new Document();
+		Document projectDetailsDocument = new Document();
+
+		if(associate.getAssociateName() != null) {
+			associateDetailsDocument.put("associateName", associate.getAssociateName());
+		}
+		if(associate.getRole() != null) {
+			associateDetailsDocument.put("role", associate.getRole());
+		}
+		if(!associate.getProjects().isEmpty()) {
+			// create a DBObject such that you can insert a list of Projects
+			List<DBObject> projectList = new ArrayList<DBObject>(associate.getProjects().size());	
+			/*associate.getProjects().forEach(project -> processProject(project, projectList));
+			detailsToUpdate.put("projects", projectList);*/
+			
+			BasicDBObject document = new BasicDBObject();
+			associate.getProjects().forEach(project -> {
+				
+				document.put("projectName", project.getProjectName());
+				document.put("projectId", "1");
+				projectList.add(document);
+
+				projectDetailsDocument.put("projects", document);
+				
+				Document command = new Document();
+				//command.put("$push", projectDetailsDocument);
+				command.put("$addToSet", projectDetailsDocument);
+
+				associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);		
+			});
+		}
+
+		Document command = new Document();
+		command.put("$set", associateDetailsDocument);
+
+		// update command
+		associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);
 	}
 
 }
