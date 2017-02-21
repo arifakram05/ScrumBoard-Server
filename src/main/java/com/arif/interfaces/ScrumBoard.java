@@ -26,7 +26,7 @@ public interface ScrumBoard extends DBConnection {
 	 * @param projectDetails
 	 * @return
 	 */
-	ScrumBoardResponse<?> addProject(String projectName, String associateId, String token);
+	ScrumBoardResponse<Void> addProject(String projectName, String associateId, String token);
 
 	/**
 	 * get all projects
@@ -36,22 +36,22 @@ public interface ScrumBoard extends DBConnection {
 	ScrumBoardResponse<Project> getAllProjects();
 
 	/**
-	 * Add an associate to the system
+	 * Add/Update an associate
 	 * 
 	 * @param associate
 	 *            {@link Associate} details
 	 * @return
 	 */
-	ScrumBoardResponse<?> addAssociate(String associateDetails, String associateId, String token);
+	ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token);
 
 	/**
-	 * Add Scrum to the system
+	 * Add Scrum for a project
 	 * 
 	 * @param associate
 	 *            {@link Scrum} detail
 	 * @return
 	 */
-	ScrumBoardResponse<?> addScrum(String scrumDetails, String associateId, String token);
+	ScrumBoardResponse<Void> addScrum(String scrumDetails, String associateId, String token);
 
 	/**
 	 * Get Scrum details for a given date and project
@@ -72,11 +72,11 @@ public interface ScrumBoard extends DBConnection {
 	 * @param projectName
 	 * @return
 	 */
-	ScrumBoardResponse<?> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token);
+	ScrumBoardResponse<Void> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token);
 
 	/**
 	 * Java 8 feature.<br/>
-	 * Get the object of the implementations class
+	 * Get an object of the implementations class
 	 * 
 	 * @return {@link ScrumBoardImpl} Object of the class that implements this
 	 *         interface
@@ -86,8 +86,7 @@ public interface ScrumBoard extends DBConnection {
 	}
 
 	/*
-	 * below methods gives instances of service classes i.e. these are all the
-	 * services this system offers
+	 * below methods provide instances of implementation classes
 	 */
 
 	default LoginService getLoginServiceInstance() {

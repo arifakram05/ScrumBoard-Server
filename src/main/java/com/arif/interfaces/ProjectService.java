@@ -12,10 +12,11 @@ public interface ProjectService {
 	
 	final static Logger LOGGER = Logger.getLogger(ProjectService.class);
 
-	default ScrumBoardResponse<?> addProject(String projectName, String associateId, String token) {
-		ScrumBoardResponse<?> response = null;
+	default ScrumBoardResponse<Void> addProject(String projectName, String associateId, String token) {
+		ScrumBoardResponse<Void> response = null;
 		// 1. validate the input
 		try {
+			LOGGER.debug("validating input "+projectName);
 			validateInput(projectName);
 			LOGGER.debug("Input validated - OK");
 		} catch (ScrumBoardException e) {
@@ -23,7 +24,7 @@ public interface ProjectService {
 			// construct message with error details
 			response = new ScrumBoardResponse<>();
 			response.setCode(404);
-			response.setMessage("Project details cannot contain special characters");
+			response.setMessage("Project Name cannot contain special characters");
 			return response;
 		}
 		// 2. check if project exists already
@@ -40,7 +41,6 @@ public interface ProjectService {
 		response = new ScrumBoardResponse<>();
 		response.setCode(200);
 		response.setMessage("Project Saved");
-		LOGGER.info("Project saved successfully");
 		return response;
 	}
 

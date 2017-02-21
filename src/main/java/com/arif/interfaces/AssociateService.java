@@ -10,12 +10,13 @@ public interface AssociateService {
 
 	final static Logger LOGGER = Logger.getLogger(AssociateService.class);
 
-	default ScrumBoardResponse<?> addAssociate(Associate associate) {
-		ScrumBoardResponse<?> response = new ScrumBoardResponse<>();
+	default ScrumBoardResponse<Void> addAssociate(Associate associate) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
 		// 1. validate the input
 		try {
+			LOGGER.debug("Validating input for add/udpate of an associate");
 			validateInput(associate);
-			LOGGER.debug("Input validated - OK");
+			LOGGER.debug("Input validated. Proceeding");
 		} catch (ScrumBoardException e) {
 			LOGGER.error("User Input Not Valid ", e);
 			// construct message with error details

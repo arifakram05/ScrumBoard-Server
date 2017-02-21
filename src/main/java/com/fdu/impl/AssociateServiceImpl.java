@@ -4,18 +4,20 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
+import org.owasp.esapi.ESAPI;
 
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.AssociateService;
 import com.arif.model.Associate;
 import com.arif.model.Project;
+import com.fdu.constants.Constants;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
 
 public class AssociateServiceImpl implements AssociateService {
 
@@ -34,25 +36,21 @@ public class AssociateServiceImpl implements AssociateService {
 	@Override
 	public boolean isAssociateExists(Associate associate) {
 		// get collection
-		MongoCollection<Document> associatesCollection = database.getCollection("associates");
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
 		// query collection
-		long resultsCount = associatesCollection.count(eq("associateId", associate.getAssociateId()));
-		if (resultsCount != 0)
-			return true;
-		else
-			return false;
+		return associatesCollection.count(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim())) != 0 ? true : false;
 	}
 
 	@Override
 	public void authorizeAssociate(Associate associate) {
 		// get collection
-		MongoCollection<Document> projectsCollection = database.getCollection("associates");
+		MongoCollection<Document> projectsCollection = database.getCollection(Constants.ASSOCIATES.getValue());
 		// create document
 		Document document = new Document();
 		// add document properties
-		document.put("associateName", associate.getAssociateName());
-		document.put("associateId", associate.getAssociateId());
-		document.put("role", associate.getRole());
+		document.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
+		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());
+		document.put(Constants.ROLE.getValue(), associate.getRole());
 
 		/*
 		 * In order to insert List of Objects, you need to first add BSON
@@ -60,88 +58,113 @@ public class AssociateServiceImpl implements AssociateService {
 		 * the array to the document being inserted.
 		 */
 		// create a DBObject such that you can insert a list of Projects
-		List<DBObject> projectList = new ArrayList<DBObject>();
-		for (Project project : associate.getProjects()) {
+		List<DBObject> projectDBObjectList = new ArrayList<DBObject>();
+		if(associate.getProjects() != null && !associate.getProjects().isEmpty()) {
+			associate.getProjects().forEach(project -> createDBObjectList(project, projectDBObjectList));
+			document.put(Constants.PROJECTS.getValue(), projectDBObjectList);
+		} else {
+			document.put(Constants.PROJECTS.getValue(), projectDBObjectList);
+		}
+		//old working logic
+		/*for (Project project : associate.getProjects()) {
 			DBObject bsonProject = getBsonFromPojo(project);
 			projectList.add(bsonProject);
-		}
-		document.put("projects", projectList);
+		}*/
 
 		// save document
 		projectsCollection.insertOne(document);
 	}
 
 	/**
-	 * Add BSON behavior for the document<br/>
+	 * Add BSON behavior to the Project<br/>
 	 * Returns a DBObject that encapsulates given Project
 	 * 
 	 * @param project
 	 * @return
 	 */
-	//This needs go into Project class
-	//Project ID needs to be generated
 	private DBObject getBsonFromPojo(Project project) {
-		BasicDBObject document = new BasicDBObject();
+		BasicDBObject dbObject = new BasicDBObject();
 
-		document.put("projectName", project.getProjectName());
-		document.put("projectId", "1");
+		dbObject.put("projectName", project.getProjectName());
+		dbObject.put("projectId", null);//This needs to be generated
 
-		return document;
+		return dbObject;
 	}
 
-	private void processProject(Project project, List<DBObject> projectList) {
+	/**
+	 * Create a list of BSONs <br/>
+	 * 
+	 * Manipulates Project in order to persist in MongoDB.
+	 * List<Project> -> Project -> DBObject -> List<DBObject>
+	 */
+	private void createDBObjectList(Project project, List<DBObject> projectList) {
 		DBObject bsonProject = getBsonFromPojo(project);
 		projectList.add(bsonProject);
 	}
 
 	@Override
 	public void validateInput(Associate associate) throws ScrumBoardException {
-		// TODO Auto-generated method stub
+		//checking associate Id
+		String associateId = ESAPI.encoder().canonicalize(associate.getAssociateId());
+		if(!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
+			throw new ScrumBoardException("Invalid input");
+		}
 		
+		//checking associate Name
+		String associateName = ESAPI.encoder().canonicalize(associate.getAssociateName());	
+		if(!Pattern.matches(Constants.SCRIPTTAGS.getValue(), associateName)) {
+			throw new ScrumBoardException("Invalid input");
+		}
+		if(!Pattern.matches(Constants.JAVASCRIPT.getValue(), associateName)) {
+			throw new ScrumBoardException("Invalid input");
+		}
 	}
 
 	@Override
 	public void updateAssociate(Associate associate) {
 		// get collection
-		MongoCollection<Document> associatesCollection = database.getCollection("associates");
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
+		
+		//updating associate name and role will be handled separately from projects
 
 		// create document to save
 		Document associateDetailsDocument = new Document();
-		Document projectDetailsDocument = new Document();
+		Document projectDetailsDocument = new Document();//in order to save array of Projects
 
 		if(associate.getAssociateName() != null) {
-			associateDetailsDocument.put("associateName", associate.getAssociateName());
+			associateDetailsDocument.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
 		}
 		if(associate.getRole() != null) {
-			associateDetailsDocument.put("role", associate.getRole());
+			associateDetailsDocument.put(Constants.ROLE.getValue(), associate.getRole());
 		}
-		if(!associate.getProjects().isEmpty()) {
-			// create a DBObject such that you can insert a list of Projects
+		//if projects is given, then add to existing list of projects
+		if(associate.getProjects() != null && !associate.getProjects().isEmpty()) {
 			List<DBObject> projectList = new ArrayList<DBObject>(associate.getProjects().size());	
 			/*associate.getProjects().forEach(project -> processProject(project, projectList));
 			detailsToUpdate.put("projects", projectList);*/
 			
-			BasicDBObject document = new BasicDBObject();
+			BasicDBObject dbObject = new BasicDBObject();
 			associate.getProjects().forEach(project -> {
 				
-				document.put("projectName", project.getProjectName());
-				document.put("projectId", "1");
-				projectList.add(document);
+				dbObject.put(Constants.PROJECTNAME.getValue(), project.getProjectName());
+				dbObject.put(Constants.PROJECTID.getValue(), null);
+				projectList.add(dbObject);
 
-				projectDetailsDocument.put("projects", document);
+				projectDetailsDocument.put("projects", dbObject);
 				
 				Document command = new Document();
-				//command.put("$push", projectDetailsDocument);
+				//add an item to existing array, does not add when duplicate
 				command.put("$addToSet", projectDetailsDocument);
-
-				associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);		
+				
+				//update projects query
+				associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);
 			});
 		}
 
 		Document command = new Document();
 		command.put("$set", associateDetailsDocument);
 
-		// update command
+		// update associate name and role query
 		associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);
 	}
 

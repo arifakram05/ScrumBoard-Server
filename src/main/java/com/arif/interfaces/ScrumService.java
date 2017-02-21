@@ -15,17 +15,18 @@ public interface ScrumService {
 
 	final static Logger LOGGER = Logger.getLogger(ScrumService.class);
 
-	default ScrumBoardResponse<?> addScrum(Scrum scrum) throws ParseException {
-		ScrumBoardResponse<?> response = new ScrumBoardResponse<>();
+	default ScrumBoardResponse<Void> addScrum(Scrum scrum) throws ParseException {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
 		// 1. validate the input
 		try {
+			LOGGER.debug("Validating input for add scrum operation");
 			validateInput(scrum);
 			LOGGER.debug("Input validated - OK");
 		} catch (ScrumBoardException e) {
 			LOGGER.error("User Input Not Valid ", e);
 			// construct message with error details
 			response.setCode(404);
-			response.setMessage("Scrum details cannot contain special characters");
+			response.setMessage("End date should be greater than Start date");
 			return response;
 		}
 		// 2. verify that no Scrum exists during the given dates
@@ -43,11 +44,11 @@ public interface ScrumService {
 		// if Scrum exists already
 		response.setCode(404);
 		response.setMessage(
-				"Scrum already exists for one or more given dates. You can only have one Scrum associated with any given dates. Please verify and re-submit");
+				"Scrum already exists for given start and end dates. Please verify and re-submit");
 		return response;
 	}
 
-	void validateInput(Scrum scrum) throws ScrumBoardException;
+	void validateInput(Scrum scrum) throws ScrumBoardException, ParseException;
 
 	/**
 	 * check if Scrum already exists during given dates

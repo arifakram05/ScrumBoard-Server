@@ -18,10 +18,11 @@ public interface LoginService {
 		ScrumBoardResponse<Associate> response = new ScrumBoardResponse<>();
 		//1. validate the input
 		try {
+			LOGGER.debug("Validating input for user login");
 			validateInput(associateId);
-			LOGGER.debug("Input validated - OK");
+			LOGGER.debug("Input validated - OK. Proceeding with login");
 		} catch (ScrumBoardException e) {
-			LOGGER.error("User Input Not Valid ", e);
+			LOGGER.error("User Input Not Valid : "+ associateId, e);
 			// construct message with error details
 			response.setCode(404);
 			response.setMessage("Login details cannot contain special characters");
@@ -29,16 +30,22 @@ public interface LoginService {
 		}
 		//2. check if associate present in the system
 		Associate associateDetails = getAssociateDetails(associateId);
-		LOGGER.debug("Associate details retreived from database");
+		LOGGER.debug("Associate details retreived from database. Generating token");
 		// 3. generate JWT Token
 		if(associateDetails != null) {
 			String authToken = SecureLogin.createJWT(associateId, -1);
-			LOGGER.debug("JWT Token generated for Associate - "+associateId);
+			LOGGER.debug("JWT Token generated for Associate. User can login");
 			// construct response with Associate details and JWT token
 			response.setAuthToken(authToken);
 			response.setCode(200);
 			response.setMessage("Login Success");
 			response.setResponse(Arrays.asList(associateDetails));
+		} else {
+			//if given login id is not present in the system
+			LOGGER.debug("Login id not recognized by the system");
+			// construct message with error details
+			response.setCode(500);
+			response.setMessage("Log-in Id not valid. Please check with your supervisor for access to the system");
 		}
 		
 		return response;

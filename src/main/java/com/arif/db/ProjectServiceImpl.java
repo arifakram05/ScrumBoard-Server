@@ -5,14 +5,17 @@ import static com.mongodb.client.model.Filters.eq;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.owasp.esapi.ESAPI;
 
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ProjectService;
 import com.arif.model.Project;
+import com.fdu.constants.Constants;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -35,25 +38,33 @@ public class ProjectServiceImpl implements ProjectService {
 	 */
 	public void addProject(String projectName) {
 		// get collection
-		MongoCollection<Document> projectsCollection = database.getCollection("projects");
+		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
 		// create document
-		Document document = new Document("projectName", projectName);
+		Document document = new Document();
+		document.append(Constants.PROJECTNAME.getValue(), projectName.trim());
+		document.append(Constants.PROJECTID.getValue(), null);//TODO : generate projectId value
 		// save document
 		projectsCollection.insertOne(document);
 	}
 
 	@Override
 	public void validateInput(String projectName) throws ScrumBoardException {
-		// TODO Auto-generated method stub
-		
+		//anti XSS vulnerability
+		projectName = ESAPI.encoder().canonicalize(projectName);	
+		if(!Pattern.matches(Constants.SCRIPTTAGS.getValue(), projectName)) {
+			throw new ScrumBoardException("Invalid input");
+		}
+		if(!Pattern.matches(Constants.JAVASCRIPT.getValue(), projectName)) {
+			throw new ScrumBoardException("Invalid input");
+		}
 	}
 
 	@Override
 	public List<Project> getAllProjects() {
 		List<Project> projectList = new ArrayList<>();
 		// get collection
-		MongoCollection<Document> projectsCollection = database.getCollection("projects");
-		// processed retrived data
+		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
+		// processed retrieved data
 		Block<Document> processRetreivedData = (document) -> {
 
 			String retrivedDataAsJSON = document.toJson();
@@ -75,12 +86,8 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public boolean isProjectExists(String projectName) {
 		// get collection
-		MongoCollection<Document> projectsCollection = database.getCollection("projects");
-		// query collection
-		long resultsCount = projectsCollection.count(eq("projectName", projectName));
-		if (resultsCount != 0)
-			return true;
-		else
-			return false;
+		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
+		// query
+		return projectsCollection.count(eq(Constants.PROJECTNAME.getValue(), projectName.trim())) != 0 ? true : false;
 	}
 }

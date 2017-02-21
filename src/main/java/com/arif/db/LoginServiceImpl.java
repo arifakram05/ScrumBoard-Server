@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.LoginService;
 import com.arif.model.Associate;
+import com.fdu.constants.Constants;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -50,8 +51,9 @@ public class LoginServiceImpl implements LoginService {
 	 */
 	public Associate getAssociateDetails(String associateId) {
 		List<Associate> associateList = new ArrayList<>(1);
-
-		MongoCollection<Document> associatesCollection = database.getCollection("associates");
+		//get collection
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
+		//process retrieved data
 		Block<Document> processRetreivedData = (document) -> {
 
 			String retrivedDataAsJSON = document.toJson();
@@ -60,11 +62,11 @@ public class LoginServiceImpl implements LoginService {
 				associate = new ObjectMapper().readValue(retrivedDataAsJSON, Associate.class);
 				associateList.add(associate);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Error occurred while processing fetched associates data while login", e);
 			}
-
 		};
-		associatesCollection.find(eq("associateId", associateId)).forEach(processRetreivedData);
+		//query
+		associatesCollection.find(eq(Constants.ASSOCIATEID.getValue(), associateId.trim())).forEach(processRetreivedData);
 		
 		if(associateList.isEmpty()) {
 			return null;
@@ -75,7 +77,9 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public void validateInput(String associateId) throws ScrumBoardException {
-		// TODO Auto-generated method stub
-		
+		if(!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
+			throw new ScrumBoardException("Invalid input");
+		}
 	}
+		
 }

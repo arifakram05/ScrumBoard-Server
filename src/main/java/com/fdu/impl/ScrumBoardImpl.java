@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 
-import com.arif.interfaces.LoginService;
 import com.arif.interfaces.ScrumBoard;
 import com.arif.model.Associate;
 import com.arif.model.Project;
@@ -17,8 +16,15 @@ import com.fdu.response.ScrumBoardResponse;
 
 public class ScrumBoardImpl implements ScrumBoard {
 
-	final static Logger LOGGER = Logger.getLogger(LoginService.class);
+	final static Logger LOGGER = Logger.getLogger(ScrumBoardImpl.class);
 
+	/**
+	 * check whether the JWT Token provided by the user is valid
+	 * 
+	 * @param token
+	 * @param associateIdToVerify
+	 * @return
+	 */
 	private boolean validateToken(String token, String associateIdToVerify) {
 		return SecureLogin.isTokenValid(token, associateIdToVerify);
 	}
@@ -27,24 +33,28 @@ public class ScrumBoardImpl implements ScrumBoard {
 	public ScrumBoardResponse<Associate> login(String associateId) {
 		ScrumBoardResponse<Associate> response = null;
 		try {
+			LOGGER.info("Logging in "+associateId);
 			response = getLoginServiceInstance().login(associateId);
+			LOGGER.info("Logging in "+associateId+" success");
 		} catch (Exception e) {
-			LOGGER.error("Error while logging in the user ", e);
+			LOGGER.error("Error while logging in the user " + associateId, e);
 			response.setCode(500);
-			response.setMessage("Internal Server Error");
+			response.setMessage("Error Occurred while logging you in");
 		}
 		return response;
 	}
 
 	@Override
-	public ScrumBoardResponse<?> addProject(String projectName, String associateId, String token) {
-		ScrumBoardResponse<?> response = null;
+	public ScrumBoardResponse<Void> addProject(String projectName, String associateId, String token) {
+		ScrumBoardResponse<Void> response = null;
 		try {
+			LOGGER.info("Adding project request recieved from " + associateId + " for project " + projectName);
 			//validate token
 			if (validateToken(token, associateId)) {
 				//as token is valid, proceed with request
 				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
-				response = getProjectServiceInstance().addProject(projectName, associateId, token);				
+				response = getProjectServiceInstance().addProject(projectName, associateId, token);
+				LOGGER.info("Project successfully added - "+ projectName);
 			} else {
 				//as token is invalid, do not process the request
 				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
@@ -56,7 +66,7 @@ public class ScrumBoardImpl implements ScrumBoard {
 			LOGGER.error("Error while adding project ", e);
 			response = new ScrumBoardResponse<>();			
 			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not save new project");
+			response.setMessage("Error Occurred. Could not save new project. Re-Login and try the operation again");
 		}
 
 		return response;
@@ -67,30 +77,34 @@ public class ScrumBoardImpl implements ScrumBoard {
 		ScrumBoardResponse<Project> response = new ScrumBoardResponse<>();
 		List<Project> projectList = null;
 		try {
+			LOGGER.info("Preparing to fetch all available projects");
 			projectList = getProjectServiceInstance().getAllProjects();
+			LOGGER.info("All projects successfully retrieved");
 			response.setCode(200);
 			response.setMessage("List of all projects");
 			response.setResponse(projectList);
 		} catch (Exception e) {
 			LOGGER.error("Error while fetching all projects ", e);
 			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not get project list");
+			response.setMessage("Error occurred. Could not get project list");
 		}		
 		return response;
 	}
 
 	@Override
-	public ScrumBoardResponse<?> addAssociate(String associateDetails, String associateId, String token) {
-		ScrumBoardResponse<?> response;
+	public ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token) {
+		ScrumBoardResponse<Void> response;
 		Associate associate;
+		LOGGER.info("Preparing to add or update an associate");
 		try {			
 			//validate token
 			if (validateToken(token, associateId)) {
+				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
 				//convert JSON to POJO
 				associate = new ObjectMapper().readValue(associateDetails, Associate.class);
 				//as token is valid, proceed with request
 				response = getAssociateServiceInstance().addAssociate(associate);
-				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
+				LOGGER.info("Associated added/updated successfully");
 			} else {
 				//as token is invalid, do not process the request
 				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
@@ -102,24 +116,26 @@ public class ScrumBoardImpl implements ScrumBoard {
 			LOGGER.error("Error occurred while processing request ",e);
 			response = new ScrumBoardResponse<>();
 			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not add an associate to the system");
+			response.setMessage("Error Ocurred. Could not add an associate to the system. Re-Login and try the operation again");
 		}
 		
 		return response;
 	}
 
 	@Override
-	public ScrumBoardResponse<?> addScrum(String scrumDetails, String associateId, String token) {
-		ScrumBoardResponse<?> response;
+	public ScrumBoardResponse<Void> addScrum(String scrumDetails, String associateId, String token) {
+		ScrumBoardResponse<Void> response;
 		Scrum scrum;
+		LOGGER.info("Request for add new scrum from "+associateId);
 		try {
-			//convert JSON to POJO
-			scrum = new ObjectMapper().readValue(scrumDetails, Scrum.class);
 			//validate token
 			if (validateToken(token, associateId)) {
+				LOGGER.info("Token is valid for associate "+associateId+". Proceeding ahead with processing request");
+				//convert JSON to POJO
+				scrum = new ObjectMapper().readValue(scrumDetails, Scrum.class);
 				//as token is valid, proceed with request 
 				response = getScrumServiceInstance().addScrum(scrum);
-				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
+				LOGGER.info("A new scrum added successfully between "+scrum.getStartDate()+" "+scrum.getEndDate());
 			} else {
 				//as token is invalid, do not process the request
 				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
@@ -131,8 +147,8 @@ public class ScrumBoardImpl implements ScrumBoard {
 			LOGGER.error("Error occurred while processing request ",e);
 			response = new ScrumBoardResponse<>();
 			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not add a Scrum to the system");
-		}		
+			response.setMessage("Error Occurred. Could not add a Scrum to the system.");
+		}	
 		
 		return response;
 	}
@@ -142,6 +158,7 @@ public class ScrumBoardImpl implements ScrumBoard {
 		ScrumBoardResponse<Scrum> response = null;
 		List<Scrum> scrumDetails;
 		List<Project> projects;
+		LOGGER.info("Request received to get scrum detail for the date "+scrumDate+" by "+associateId);
 		try {
 			//validate token
 			if (validateToken(token, associateId)) {
@@ -157,7 +174,8 @@ public class ScrumBoardImpl implements ScrumBoard {
 				} else {
 					response.setMessage("Showing Scrum details for "+scrumDate);
 					response.setResponse(scrumDetails);
-				}				
+				}
+				LOGGER.info("Retrieved scrum details successfully");
 			} else {
 				//as token is invalid, do not process the request
 				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
@@ -165,17 +183,19 @@ public class ScrumBoardImpl implements ScrumBoard {
 				response.setCode(403);
 				response.setMessage("System cannot proceed with your operation for security reasons. Please re-login and perform the operation again");
 			}
-		} catch (Exception exception) {
+		} catch (Exception e) {
+			LOGGER.error("Error occurred while fetching scrum details for a particular date", e);
 			response = new ScrumBoardResponse<>();
 			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not get Scrum details");
+			response.setMessage("Error occurred. Could not get Scrum details. Please check the scrum date or try the operation after re-login");
 		}
 		return response;
 	}
 
 	@Override
-	public ScrumBoardResponse<?> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token) {
-		ScrumBoardResponse<Scrum> response = null;
+	public ScrumBoardResponse<Void> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token) {
+		ScrumBoardResponse<Void> response = null;
+		LOGGER.info("Request to save scrum update of "+associateId+" for date "+date);
 		try {
 			//validate token
 			if (validateToken(token, associateId)) {
@@ -185,18 +205,20 @@ public class ScrumBoardImpl implements ScrumBoard {
 				getScrumServiceInstance().saveDailyScrumUpdate(scrumDetailsPojo, date, projectName);
 				response = new ScrumBoardResponse<>();
 				response.setCode(200);
-				response.setMessage("Saved");			
+				response.setMessage("Saved");
+				LOGGER.info("Scrum update for the given date saved successfully");
 			} else {
 				//as token is invalid, do not process the request
 				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
 				response = new ScrumBoardResponse<>();
 				response.setCode(403);
 				response.setMessage("System cannot proceed with your operation for security reasons. Please re-login and perform the operation again");
-			}			
-		} catch (Exception exception) {
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred while saving scrum update for "+associateId, e);
 			response = new ScrumBoardResponse<>();
-			response.setCode(500);
-			response.setMessage("Internal Server Error. Could not save Scrum details");
+			response.setCode(500); 
+			response.setMessage("Error Occurred. Could not save Scrum details. Please re-login and try saving");
 		}
 		return response;
 	}

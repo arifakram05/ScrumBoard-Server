@@ -58,10 +58,10 @@ public class ScrumBoardServices {
 	@Path("/project")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<?> saveProject(@FormDataParam("projectName") String projectName,
+	public ScrumBoardResponse<Void> saveProject(@FormDataParam("projectName") String projectName,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<?> response = ScrumBoard.getInstance().addProject(projectName, associateId, token);
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addProject(projectName, associateId, token);
 		return response;
 	}
 
@@ -73,14 +73,14 @@ public class ScrumBoardServices {
 	@GET
 	@Path("/projects")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<Project> viewJobApplicants() {
+	public ScrumBoardResponse<Project> getAllProjects() {
 
 		ScrumBoardResponse<Project> response = ScrumBoard.getInstance().getAllProjects();
 		return response;
 	}
 
 	/**
-	 * Add an associate to the system
+	 * Add/Update an associate
 	 * 
 	 * @param formData
 	 *            Associate Details to save
@@ -93,15 +93,15 @@ public class ScrumBoardServices {
 	@Path("/associate")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<?> saveAssociate(@FormDataParam("associateDetails") String associateDetails,
+	public ScrumBoardResponse<Void> saveAssociate(@FormDataParam("associateDetails") String associateDetails,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<?> response = ScrumBoard.getInstance().addAssociate(associateDetails, associateId, token);
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addAssociate(associateDetails, associateId, token);
 		return response;
 	}
 
 	/**
-	 * Add a Scrum to the system
+	 * Add a Scrum for a project
 	 * 
 	 * @param formData
 	 *            Scrum Details to save
@@ -114,15 +114,15 @@ public class ScrumBoardServices {
 	@Path("/scrum")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<?> addScrum(@FormDataParam("scrumDetails") String scrumDetails,
+	public ScrumBoardResponse<Void> addScrum(@FormDataParam("scrumDetails") String scrumDetails,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<?> response = ScrumBoard.getInstance().addScrum(scrumDetails, associateId, token);
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addScrum(scrumDetails, associateId, token);
 		return response;
 	}
 
 	/**
-	 * Return Scrum details for the given date.
+	 * Get Scrum details for the given date.
 	 * 
 	 * @return
 	 */
@@ -139,7 +139,7 @@ public class ScrumBoardServices {
 	}
 
 	/**
-	 * Update targets for the day.
+	 * Update Scrum record of an associate for the given day.
 	 * 
 	 * @param formData
 	 * @return
@@ -151,28 +151,12 @@ public class ScrumBoardServices {
 	@Path("/scrumupdate")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<?> dailyScrumUpdate(@FormDataParam("scrumDetails") String scrumDetails,
+	public ScrumBoardResponse<Void> dailyScrumUpdate(@FormDataParam("scrumDetails") String scrumDetails,
 			@FormDataParam("date") String date, @FormDataParam("projectName") String projectName,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<?> response = ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date, projectName, associateId, token); 
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date, projectName, associateId, token); 
 		return response;
-	}
-
-	/**
-	 * Logs out a user <br/>
-	 * Have a map of userids and jwts, and upon logout, remove the user id from the mop
-	 * 
-	 * @param formData
-	 * @param authString
-	 * @return
-	 */
-	/*@POST
-	@Path("/logout")
-	public ScrumBoardResponse<?> logout(@FormDataParam("associateDetails") String formData,
-			@HeaderParam("Authorization") String authString) {
-		return null;
-	}*/
-	
+	}	
 
 }
