@@ -8,6 +8,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -17,6 +18,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import com.arif.interfaces.ScrumBoard;
 import com.arif.model.Associate;
 import com.arif.model.Project;
+import com.arif.model.ProjectNotes;
 import com.arif.model.Scrum;
 import com.fdu.response.ScrumBoardResponse;
 import com.sun.jersey.multipart.FormDataParam;
@@ -157,6 +159,41 @@ public class ScrumBoardServices {
 
 		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date, projectName, associateId, token); 
 		return response;
-	}	
+	}
+
+	/**
+	 * Returns all projects. Does not validate the token.
+	 * 
+	 * @return
+	 */
+	@GET
+	@Path("/projectNotes")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<ProjectNotes> getAllProjectNotes(@QueryParam("projectName") String projectName) {
+
+		ScrumBoardResponse<ProjectNotes> response = ScrumBoard.getInstance().getAllProjectNotes(projectName);
+		return response;
+	}
+
+	/**
+	 * Save a new project notes
+	 * 
+	 * @param projectNotes
+	 * @param projectName
+	 * @param associateId
+	 * @param token
+	 * @return
+	 */
+	@POST
+	@Path("/projectNote")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> saveNewProjectNotes(@FormDataParam("projectNotes") String projectNotes,
+			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
+			@HeaderParam("Authorization") String token) {
+
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveNewProjectNotes(projectNotes, projectName, associateId, token); 
+		return response;
+	}
 
 }

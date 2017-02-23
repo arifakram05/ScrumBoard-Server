@@ -118,7 +118,7 @@ public class ScrumServiceImpl implements ScrumService {
 		document.put(Constants.ACTUALDATE.getValue(), date);
 		document.put(Constants.STARTDATE.getValue(), scrum.getStartDate());
 		document.put(Constants.ENDDATE.getValue(), scrum.getEndDate());
-		document.put(Constants.SCRUMNAME.getValue(), scrum.getScrumName());
+		document.put(Constants.SCRUMNAME.getValue(), scrum.getScrumName().trim());
 		/*
 		 * For each ScrumDetails object in the list of ScrumDetails, create a
 		 * DBObject and put it in the list of DBObjects

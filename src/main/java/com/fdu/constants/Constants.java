@@ -30,7 +30,17 @@ public enum Constants {
 	
 	//validatons
 	SCRIPTTAGS("<script>(.*?)</script>"),
-	JAVASCRIPT("javascript:");
+	JAVASCRIPT("javascript:"),
+	
+	//notes
+	NOTES("Notes"),
+	TITLE("title"),
+	CREATEDON("createdOn"),
+	LASTUPDATEDON("lastUpdatedOn"),
+	AUTHOR("author"),
+	EDITORS("editors"),
+	NOTESFIELD("notes");
+	
 	
 	private String value;
 	

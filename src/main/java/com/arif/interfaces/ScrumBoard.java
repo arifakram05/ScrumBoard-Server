@@ -4,8 +4,10 @@ import com.arif.db.LoginServiceImpl;
 import com.arif.db.ProjectServiceImpl;
 import com.arif.model.Associate;
 import com.arif.model.Project;
+import com.arif.model.ProjectNotes;
 import com.arif.model.Scrum;
 import com.fdu.impl.AssociateServiceImpl;
+import com.fdu.impl.ProjectNotesServiceImpl;
 import com.fdu.impl.ScrumBoardImpl;
 import com.fdu.impl.ScrumServiceImpl;
 import com.fdu.response.ScrumBoardResponse;
@@ -75,6 +77,24 @@ public interface ScrumBoard extends DBConnection {
 	ScrumBoardResponse<Void> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token);
 
 	/**
+	 * get all notes of a project
+	 * 
+	 * @return
+	 */
+	ScrumBoardResponse<ProjectNotes> getAllProjectNotes(String projectName);
+	
+	/**
+	 * Save a new project note
+	 * 
+	 * @param projectNotes
+	 * @param projectName
+	 * @param associateId
+	 * @param token
+	 * @return
+	 */
+	ScrumBoardResponse<Void> saveNewProjectNotes(String projectNotes, String projectName, String associateId, String token);
+
+	/**
 	 * Java 8 feature.<br/>
 	 * Get an object of the implementations class
 	 * 
@@ -103,6 +123,10 @@ public interface ScrumBoard extends DBConnection {
 
 	default ScrumService getScrumServiceInstance() {
 		return new ScrumServiceImpl(getDBConnection());
+	}
+
+	default ProjectNotesService getProjectNotesServiceInstance() {
+		return new ProjectNotesServiceImpl(getDBConnection());
 	}
 
 }

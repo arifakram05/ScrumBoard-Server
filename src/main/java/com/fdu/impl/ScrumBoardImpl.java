@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.type.TypeFactory;
 import com.arif.interfaces.ScrumBoard;
 import com.arif.model.Associate;
 import com.arif.model.Project;
+import com.arif.model.ProjectNotes;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.arif.util.SecureLogin;
@@ -220,6 +221,57 @@ public class ScrumBoardImpl implements ScrumBoard {
 			response.setCode(500); 
 			response.setMessage("Error Occurred. Could not save Scrum details. Please re-login and try saving");
 		}
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<ProjectNotes> getAllProjectNotes(String projectName) {
+		ScrumBoardResponse<ProjectNotes> response = new ScrumBoardResponse<>();
+		List<ProjectNotes> projectNotesList = null;
+		try {
+			LOGGER.info("Preparing to fetch all available notes for project "+projectName);
+			projectNotesList = getProjectNotesServiceInstance().getAllProjectNotes(projectName);
+			LOGGER.info("All project notes successfully retrieved");
+			response.setCode(200);
+			response.setMessage("List of all available project notes for "+projectName);
+			response.setResponse(projectNotesList);
+		} catch (Exception e) {
+			LOGGER.error("Error while fetching all projects notes ", e);
+			response.setCode(500);
+			response.setMessage("Error occurred. Could not get project notes list");
+		}		
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<Void> saveNewProjectNotes(String projectNotes, String projectName, String associateId,
+			String token) {
+		ScrumBoardResponse<Void> response;
+		ProjectNotes projectNotesPojo;
+		LOGGER.info("Preparing to add new project notes");
+		try {			
+			//validate token
+			if (validateToken(token, associateId)) {
+				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
+				//convert JSON to POJO
+				projectNotesPojo = new ObjectMapper().readValue(projectNotes, ProjectNotes.class);
+				//as token is valid, proceed with request
+				response = getProjectNotesServiceInstance().saveNewProjectNotes(projectNotesPojo, projectName, associateId);
+				LOGGER.info("Add project note reqeust processed successfully");
+			} else {
+				//as token is invalid, do not process the request
+				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
+				response = new ScrumBoardResponse<>();
+				response.setCode(403);
+				response.setMessage("System cannot proceed with your operation for security reasons. Please re-login and perform the operation again");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred while processing request ",e);
+			response = new ScrumBoardResponse<>();
+			response.setCode(500);
+			response.setMessage("Error Ocurred. Could not add an associate to the system. Re-Login and try the operation again");
+		}
+		
 		return response;
 	}
 
