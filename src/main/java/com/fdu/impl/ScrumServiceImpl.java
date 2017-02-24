@@ -221,4 +221,30 @@ public class ScrumServiceImpl implements ScrumService {
 		}
 	}
 
+	@Override
+	public List<Scrum> getFilteredScrumDetails(String scrumDate, String projectName) {
+		List<Scrum> scrumDetailsList = new ArrayList<>();
+		
+		// get collection
+		MongoCollection<Document> scrumDetailsCollection = database.getCollection(projectName);
+		// processed retrieved data
+		Block<Document> processRetreivedData = (document) -> {
+
+			String retrivedDataAsJSON = document.toJson();
+			Scrum scrum;			
+			try {
+				scrum = new ObjectMapper().readValue(retrivedDataAsJSON, Scrum.class);
+				scrum.setProjectName(projectName);
+				scrumDetailsList.add(scrum);
+			} catch (IOException e) {
+				LOGGER.error("Error while processing retrieved filtered scrum details ",e);
+			}
+
+		};
+		// query
+		scrumDetailsCollection.find(eq(Constants.ACTUALDATE.getValue(),scrumDate)).forEach(processRetreivedData);
+		LOGGER.info("All projects fetched");
+		return scrumDetailsList;
+	}
+
 }

@@ -141,6 +141,23 @@ public class ScrumBoardServices {
 	}
 
 	/**
+	 * Get Scrum details for the given date.
+	 * 
+	 * @return
+	 */
+	@POST
+	@Path("/filteredscrumdetails")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Scrum> getFilteredScrumDetails(@FormDataParam("scrumDate") String scrumDate,
+			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
+			@HeaderParam("Authorization") String token) {
+
+		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getFilteredScrumDetails(scrumDate, projectName, associateId, token);
+		return response;
+	}
+
+	/**
 	 * Update Scrum record of an associate for the given day.
 	 * 
 	 * @param formData

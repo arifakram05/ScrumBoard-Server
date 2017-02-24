@@ -96,4 +96,13 @@ public interface ScrumService {
 	 * @return
 	 */
 	void saveDailyScrumUpdate(ScrumDetails scrumDetails, String date, String projectName);
+
+	/**
+	 * Get filtered Scrum details on the specified date and for specified project
+	 * 
+	 * @param scrumDate
+	 * @param projectName
+	 * @return
+	 */
+	List<Scrum> getFilteredScrumDetails(String scrumDate, String projectName);
 }

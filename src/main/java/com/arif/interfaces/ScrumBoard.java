@@ -56,15 +56,27 @@ public interface ScrumBoard extends DBConnection {
 	ScrumBoardResponse<Void> addScrum(String scrumDetails, String associateId, String token);
 
 	/**
-	 * Get Scrum details for a given date and project
+	 * Get Scrum details for a given date and projects
 	 * 
 	 * @param scrumDate
-	 *            Scrum date
-	 * @param projectName
-	 *            Project name
+	 * @param projectList
+	 * @param associateId
+	 * @param token
 	 * @return
 	 */
 	ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectList, String associateId, String token);
+
+	/**
+	 * Get filtered Scrum details for a given date and a given project
+	 * 
+	 * @param scrumDate
+	 * @param projectName
+	 * @param associateId
+	 * @param token
+	 * @return
+	 */
+	ScrumBoardResponse<Scrum> getFilteredScrumDetails(String scrumDate, String projectName, String associateId, String token);
+	
 
 	/**
 	 * Save daily Scrum updates of an associate

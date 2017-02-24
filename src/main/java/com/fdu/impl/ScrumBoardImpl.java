@@ -194,6 +194,42 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
+	public ScrumBoardResponse<Scrum> getFilteredScrumDetails(String scrumDate, String projectName, String associateId, String token) {
+		ScrumBoardResponse<Scrum> response = null;
+		List<Scrum> scrumDetails;
+		LOGGER.info("Request received to get scrum detail for the date "+scrumDate+" by "+associateId+" for project "+projectName);
+		try {
+			//validate token
+			if (validateToken(token, associateId)) {
+				//as token is valid, proceed with request
+				LOGGER.info("Token is valid for associate "+associateId +". Proceeding ahead with processing request");
+				scrumDetails = getScrumServiceInstance().getFilteredScrumDetails(scrumDate, projectName);
+				response = new ScrumBoardResponse<>();
+				response.setCode(200);
+				if(scrumDetails.isEmpty()) {
+					response.setMessage("No Scrum records found for "+projectName+" on "+scrumDate);
+				} else {
+					response.setMessage("Showing Scrum details for "+projectName+" on "+scrumDate);
+					response.setResponse(scrumDetails);
+				}
+				LOGGER.info("Retrieved scrum details successfully");
+			} else {
+				//as token is invalid, do not process the request
+				LOGGER.info("Token is not valid for associate "+associateId+". Cannot proceed ahead with the request");
+				response = new ScrumBoardResponse<>();
+				response.setCode(403);
+				response.setMessage("System cannot proceed with your operation for security reasons. Please re-login and perform the operation again");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred while fetching scrum details for a particular date", e);
+			response = new ScrumBoardResponse<>();
+			response.setCode(500);
+			response.setMessage("Error occurred. Could not get Scrum details. Please try the operation after re-login");
+		}
+		return response;
+	}
+
+	@Override
 	public ScrumBoardResponse<Void> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token) {
 		ScrumBoardResponse<Void> response = null;
 		LOGGER.info("Request to save scrum update of "+associateId+" for date "+date);
