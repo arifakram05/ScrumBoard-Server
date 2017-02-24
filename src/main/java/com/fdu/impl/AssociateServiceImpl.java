@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bson.Document;
-import org.owasp.esapi.ESAPI;
 
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.AssociateService;
@@ -49,8 +48,9 @@ public class AssociateServiceImpl implements AssociateService {
 		Document document = new Document();
 		// add document properties
 		document.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
-		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());
-		document.put(Constants.ROLE.getValue(), associate.getRole());
+		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());		
+		document.put(Constants.TITLE.getValue(), associate.getTitle());
+		document.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
 
 		/*
 		 * In order to insert List of Objects, you need to first add BSON
@@ -65,11 +65,6 @@ public class AssociateServiceImpl implements AssociateService {
 		} else {
 			document.put(Constants.PROJECTS.getValue(), projectDBObjectList);
 		}
-		//old working logic
-		/*for (Project project : associate.getProjects()) {
-			DBObject bsonProject = getBsonFromPojo(project);
-			projectList.add(bsonProject);
-		}*/
 
 		// save document
 		projectsCollection.insertOne(document);
@@ -105,17 +100,19 @@ public class AssociateServiceImpl implements AssociateService {
 	@Override
 	public void validateInput(Associate associate) throws ScrumBoardException {
 		//checking associate Id
-		String associateId = ESAPI.encoder().canonicalize(associate.getAssociateId());
+		String associateId = associate.getAssociateId();
+		//associateId = ESAPI.encoder().canonicalize(associate.getAssociateId());
 		if(!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
 			throw new ScrumBoardException("Invalid input");
 		}
 		
 		//checking associate Name
-		String associateName = ESAPI.encoder().canonicalize(associate.getAssociateName());	
-		if(!Pattern.matches(Constants.SCRIPTTAGS.getValue(), associateName)) {
+		String associateName = associate.getAssociateName();
+		//associateName = ESAPI.encoder().canonicalize(associate.getAssociateName());	
+		if(Pattern.matches(Constants.SCRIPTTAGS.getValue(), associateName)) {
 			throw new ScrumBoardException("Invalid input");
 		}
-		if(!Pattern.matches(Constants.JAVASCRIPT.getValue(), associateName)) {
+		if(Pattern.matches(Constants.JAVASCRIPT.getValue(), associateName)) {
 			throw new ScrumBoardException("Invalid input");
 		}
 	}
@@ -131,11 +128,12 @@ public class AssociateServiceImpl implements AssociateService {
 		Document associateDetailsDocument = new Document();
 		Document projectDetailsDocument = new Document();//in order to save array of Projects
 
-		if(associate.getAssociateName() != null) {
+		if(associate.getAssociateName() != null && !associate.getAssociateName().trim().isEmpty()) {
 			associateDetailsDocument.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
 		}
-		if(associate.getRole() != null) {
-			associateDetailsDocument.put(Constants.ROLE.getValue(), associate.getRole());
+		if(associate.getTitle() != null) {
+			associateDetailsDocument.put(Constants.TITLE.getValue(), associate.getTitle());
+			associateDetailsDocument.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
 		}
 		//if projects is given, then add to existing list of projects
 		if(associate.getProjects() != null && !associate.getProjects().isEmpty()) {

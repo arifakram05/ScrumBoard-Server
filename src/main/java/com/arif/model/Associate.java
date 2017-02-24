@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import com.fdu.constants.Constants;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Associate {
 
 	String associateId;
 	String associateName;
 	String role;
+	String title;
 	List<Project> projects;
 
 	public String getAssociateId() {
@@ -44,4 +47,29 @@ public class Associate {
 		this.projects = projects;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getRoleFromTitle(String title) {
+		String role = null;
+		switch (title) {
+		case "Team Member":
+			role = new String(Constants.TEAMMEMBER.getValue());
+			break;
+		case "Scrum Master":
+			role = new String(Constants.SCRUMMASTER.getValue());
+			break;
+		case "Team Lead":
+			role = new String(Constants.TEAMLEAD.getValue());
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid title " + title);
+		}
+		return role;
+	}
 }

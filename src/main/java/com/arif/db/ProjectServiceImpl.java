@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.owasp.esapi.ESAPI;
 
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ProjectService;
@@ -50,11 +49,11 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public void validateInput(String projectName) throws ScrumBoardException {
 		//anti XSS vulnerability
-		projectName = ESAPI.encoder().canonicalize(projectName);	
-		if(!Pattern.matches(Constants.SCRIPTTAGS.getValue(), projectName)) {
+		//projectName = ESAPI.encoder().canonicalize(projectName);	
+		if(Pattern.matches(Constants.SCRIPTTAGS.getValue(), projectName)) {
 			throw new ScrumBoardException("Invalid input");
 		}
-		if(!Pattern.matches(Constants.JAVASCRIPT.getValue(), projectName)) {
+		if(Pattern.matches(Constants.JAVASCRIPT.getValue(), projectName)) {
 			throw new ScrumBoardException("Invalid input");
 		}
 	}

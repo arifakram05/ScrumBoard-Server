@@ -24,7 +24,7 @@ public interface AssociateService {
 			response.setMessage("Associate details cannot contain special characters");
 			return response;
 		}
-		// 2. check if associate exists in the system
+		// 2. check if associate does not exist
 		if (!isAssociateExists(associate)) {
 			LOGGER.info("Adding new associate - "+associate.getAssociateId());
 			// If associates does not exist, do the following

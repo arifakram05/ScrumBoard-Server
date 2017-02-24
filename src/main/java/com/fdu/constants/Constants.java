@@ -39,8 +39,12 @@ public enum Constants {
 	LASTUPDATEDON("lastUpdatedOn"),
 	AUTHOR("author"),
 	EDITORS("editors"),
-	NOTESFIELD("notes");
+	NOTESFIELD("notes"),
 	
+	//associate role
+	TEAMMEMBER("member"),
+	SCRUMMASTER("admin"),
+	TEAMLEAD("lead");
 	
 	private String value;
 	
