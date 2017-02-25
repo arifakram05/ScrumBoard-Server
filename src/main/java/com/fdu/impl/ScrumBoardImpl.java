@@ -230,6 +230,25 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
+	public ScrumBoardResponse<Scrum> getRecentScrumRecord(String projectName) {
+		ScrumBoardResponse<Scrum> response = new ScrumBoardResponse<>();
+		List<Scrum> scrumList = null;
+		try {
+			LOGGER.info("Preparing to fetch the most recent scrum record for the project "+projectName);
+			scrumList = getScrumServiceInstance().getRecentScrumRecord(projectName);
+			LOGGER.info("Most recent scrum record retrieved successfully");
+			response.setCode(200);
+			response.setMessage("Recent scrum record the project "+projectName+" is retrieved");
+			response.setResponse(scrumList);
+		} catch (Exception e) {
+			LOGGER.error("Error while fetching the most recent scrum record ", e);
+			response.setCode(500);
+			response.setMessage("Error occurred. Could not get the most recent scrum record for "+projectName);
+		}		
+		return response;
+	}
+
+	@Override
 	public ScrumBoardResponse<Void> saveDailyScrumUpdate(String scrumDetails, String date, String projectName, String associateId, String token) {
 		ScrumBoardResponse<Void> response = null;
 		LOGGER.info("Request to save scrum update of "+associateId+" for date "+date);

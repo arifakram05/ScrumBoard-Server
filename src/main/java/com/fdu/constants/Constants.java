@@ -4,6 +4,9 @@ public enum Constants {
 
 	//patterns
 	NUMBERS_ONLY("[0-9]+"),
+
+	//object id
+	OBJECTID("_id"),
 	
 	//collections
 	ASSOCIATES("associates"),

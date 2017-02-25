@@ -76,7 +76,13 @@ public interface ScrumBoard extends DBConnection {
 	 * @return
 	 */
 	ScrumBoardResponse<Scrum> getFilteredScrumDetails(String scrumDate, String projectName, String associateId, String token);
-	
+
+	/**
+	 * Return the most recent scrum record for the given project.
+	 * 
+	 * @return
+	 */
+	ScrumBoardResponse<Scrum> getRecentScrumRecord(String projectName);
 
 	/**
 	 * Save daily Scrum updates of an associate

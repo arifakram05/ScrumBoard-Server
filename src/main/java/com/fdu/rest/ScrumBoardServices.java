@@ -158,6 +158,20 @@ public class ScrumBoardServices {
 	}
 
 	/**
+	 * Return recent scrum record for the given project.
+	 * 
+	 * @return
+	 */
+	@GET
+	@Path("/latestScrum")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Scrum> getRecentScrumRecord(@QueryParam("projectName") String projectName) {
+
+		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getRecentScrumRecord(projectName);
+		return response;
+	}
+
+	/**
 	 * Update Scrum record of an associate for the given day.
 	 * 
 	 * @param formData

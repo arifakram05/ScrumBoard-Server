@@ -105,4 +105,12 @@ public interface ScrumService {
 	 * @return
 	 */
 	List<Scrum> getFilteredScrumDetails(String scrumDate, String projectName);
+
+	/**
+	 * Get the most recent scrum record for the given project
+	 * 
+	 * @param projectName
+	 * @return
+	 */
+	List<Scrum> getRecentScrumRecord(String projectName);
 }
