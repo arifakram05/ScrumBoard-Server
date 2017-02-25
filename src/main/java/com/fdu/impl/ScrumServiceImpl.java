@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -219,6 +221,13 @@ public class ScrumServiceImpl implements ScrumService {
 		if (!DateMechanic.isEndDateGreater(scrum.getStartDate(), scrum.getEndDate())) {
 			throw new ScrumBoardException("End date is smaller that the Start date");
 		}
+		//checking scrum Name
+		String scrumName = scrum.getScrumName();
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+        Matcher matcher = pattern.matcher(scrumName);
+        while(matcher.find()) {
+        	throw new ScrumBoardException("Invalid input");
+        }
 	}
 
 	@Override

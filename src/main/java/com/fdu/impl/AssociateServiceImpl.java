@@ -4,6 +4,7 @@ import static com.mongodb.client.model.Filters.eq;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bson.Document;
@@ -101,20 +102,17 @@ public class AssociateServiceImpl implements AssociateService {
 	public void validateInput(Associate associate) throws ScrumBoardException {
 		//checking associate Id
 		String associateId = associate.getAssociateId();
-		//associateId = ESAPI.encoder().canonicalize(associate.getAssociateId());
 		if(!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
 			throw new ScrumBoardException("Invalid input");
 		}
 		
 		//checking associate Name
 		String associateName = associate.getAssociateName();
-		//associateName = ESAPI.encoder().canonicalize(associate.getAssociateName());	
-		if(Pattern.matches(Constants.SCRIPTTAGS.getValue(), associateName)) {
-			throw new ScrumBoardException("Invalid input");
-		}
-		if(Pattern.matches(Constants.JAVASCRIPT.getValue(), associateName)) {
-			throw new ScrumBoardException("Invalid input");
-		}
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+        Matcher matcher = pattern.matcher(associateName);
+        while(matcher.find()) {
+        	throw new ScrumBoardException("Invalid input");
+        }
 	}
 
 	@Override

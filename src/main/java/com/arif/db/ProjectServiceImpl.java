@@ -5,6 +5,7 @@ import static com.mongodb.client.model.Filters.eq;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -48,12 +49,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void validateInput(String projectName) throws ScrumBoardException {
-		//anti XSS vulnerability
-		//projectName = ESAPI.encoder().canonicalize(projectName);	
-		if(Pattern.matches(Constants.SCRIPTTAGS.getValue(), projectName)) {
-			throw new ScrumBoardException("Invalid input");
-		}
-		if(Pattern.matches(Constants.JAVASCRIPT.getValue(), projectName)) {
+		// anti XSS vulnerabilityl
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+		Matcher matcher = pattern.matcher(projectName);
+		while (matcher.find()) {
 			throw new ScrumBoardException("Invalid input");
 		}
 	}

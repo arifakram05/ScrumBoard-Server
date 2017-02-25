@@ -32,8 +32,7 @@ public enum Constants {
 	ROADBLOCKS("roadblocks"),
 	
 	//validatons
-	SCRIPTTAGS("<script>(.*?)</script>"),
-	JAVASCRIPT("javascript:"),
+	RESTRICT("[<>\"!\':{}]"),
 	
 	//notes
 	NOTES("Notes"),

@@ -3,6 +3,8 @@ package com.fdu.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.bson.Document;
@@ -67,9 +69,14 @@ public class ProjectNotesServiceImpl implements  ProjectNotesService {
 	}
 
 	@Override
-	public void validateInput(String associateId) throws ScrumBoardException {
-		// TODO Auto-generated method stub
-		
+	public void validateInput(ProjectNotes projectNotes) throws ScrumBoardException {
+		//checking project notes title
+		String title = projectNotes.getTitle();
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+        Matcher matcher = pattern.matcher(title);
+        while(matcher.find()) {
+        	throw new ScrumBoardException("Invalid input");
+        }
 	}
 
 }

@@ -17,7 +17,7 @@ public interface ProjectNotesService {
 		// 1. validate the input
 		try {
 			LOGGER.debug("Validating input for add new project notes operation");
-			validateInput(associateId);
+			validateInput(projectNotes);
 			LOGGER.debug("Input validated - OK");
 		} catch (ScrumBoardException e) {
 			LOGGER.error("User is attempting to save notes on a project that he does not have access to ", e);
@@ -39,5 +39,5 @@ public interface ProjectNotesService {
 
 	void saveProjectNotes(ProjectNotes projectNotes, String projectName);
 
-	void validateInput(String associateId) throws ScrumBoardException;
+	void validateInput(ProjectNotes projectNotes) throws ScrumBoardException;
 }

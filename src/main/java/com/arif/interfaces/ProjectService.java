@@ -24,7 +24,7 @@ public interface ProjectService {
 			// construct message with error details
 			response = new ScrumBoardResponse<>();
 			response.setCode(404);
-			response.setMessage("Project Name cannot contain special characters");
+			response.setMessage("Project Name cannot contain < > \" ! \' : { } ] characters");
 			return response;
 		}
 		// 2. check if project exists already

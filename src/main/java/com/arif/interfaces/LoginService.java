@@ -25,7 +25,7 @@ public interface LoginService {
 			LOGGER.error("User Input Not Valid : "+ associateId, e);
 			// construct message with error details
 			response.setCode(404);
-			response.setMessage("Login details cannot contain special characters");
+			response.setMessage("Login details can only contain numbers");
 			return response;
 		}
 		//2. check if associate present in the system
@@ -44,7 +44,7 @@ public interface LoginService {
 			//if given login id is not present in the system
 			LOGGER.debug("Login id not recognized by the system");
 			// construct message with error details
-			response.setCode(500);
+			response.setCode(403);
 			response.setMessage("Log-in Id not valid. Please check with your supervisor for access to the system");
 		}
 		
