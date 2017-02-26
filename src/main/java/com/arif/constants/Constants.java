@@ -7,20 +7,20 @@ public enum Constants {
 
 	//object id
 	OBJECTID("_id"),
-	
+
 	//collections
 	ASSOCIATES("associates"),
 	PROJECTS("projects"),
-	
+
 	//fields in associates
 	ASSOCIATEID("associateId"),
 	ASSOCIATENAME("associateName"),
 	ROLE("role"),
-	
+
 	//fields in projects
 	PROJECTNAME("projectName"),
 	PROJECTID("projectId"),
-	
+
 	//fields
 	ACTUALDATE("actualDate"),
 	SCRUMDETAILS("scrumDetails"),
@@ -30,10 +30,10 @@ public enum Constants {
 	YESTERDAY("yesterday"),
 	TODAY("today"),
 	ROADBLOCKS("roadblocks"),
-	
+
 	//validatons
 	RESTRICT("[<>\"!\':{}]"),
-	
+
 	//notes
 	NOTES("Notes"),
 	TITLE("title"),
@@ -42,20 +42,23 @@ public enum Constants {
 	AUTHOR("author"),
 	EDITORS("editors"),
 	NOTESFIELD("notes"),
-	
+
+	//title
+	TEAMMEMBERTITLE("Team Member"),
+
 	//associate role
 	TEAMMEMBER("member"),
 	SCRUMMASTER("admin"),
 	TEAMLEAD("lead");
-	
+
 	private String value;
-	
+
 	private Constants(String value) {
 		this.value = value;
 	}
-	
+
 	public String getValue() {
 		return value;
 	}
-	
+
 }

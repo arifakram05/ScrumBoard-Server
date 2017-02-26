@@ -57,8 +57,14 @@ public class AssociateServiceImpl implements AssociateService {
 		// add document properties
 		document.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
 		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());
-		document.put(Constants.TITLE.getValue(), associate.getTitle());
-		document.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
+		if (associate.getTitle() == null || associate.getTitle().isEmpty()) {
+			associate.setTitle(Constants.TEAMMEMBERTITLE.getValue());
+			document.put(Constants.TITLE.getValue(), associate.getTitle());
+			document.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
+		} else {
+			document.put(Constants.TITLE.getValue(), associate.getTitle());
+			document.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
+		}
 
 		/*
 		 * In order to insert List of Objects, you need to first add BSON
