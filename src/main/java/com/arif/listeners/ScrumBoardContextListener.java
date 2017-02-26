@@ -7,6 +7,13 @@ import com.arif.database.DBConnecton;
 import com.arif.util.ResourceReader;
 import com.mongodb.MongoClient;
 
+/**
+ * A listerner class that establishes connection when WAR is deployed, and
+ * closes connection before server is stopped
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class ScrumBoardContextListener implements ServletContextListener {
 
 	MongoClient mongoClient = null;

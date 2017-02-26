@@ -1,4 +1,4 @@
-package com.arif.db;
+package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -12,14 +12,20 @@ import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ProjectService;
 import com.arif.model.Project;
-import com.fdu.constants.Constants;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * contains all the logic related to project
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class ProjectServiceImpl implements ProjectService {
 
 	final static Logger LOGGER = Logger.getLogger(ProjectServiceImpl.class);
@@ -42,7 +48,9 @@ public class ProjectServiceImpl implements ProjectService {
 		// create document
 		Document document = new Document();
 		document.append(Constants.PROJECTNAME.getValue(), projectName.trim());
-		document.append(Constants.PROJECTID.getValue(), null);//TODO : generate projectId value
+		document.append(Constants.PROJECTID.getValue(), null);// TODO : generate
+																// projectId
+																// value
 		// save document
 		projectsCollection.insertOne(document);
 	}
@@ -71,7 +79,7 @@ public class ProjectServiceImpl implements ProjectService {
 				project = new ObjectMapper().readValue(retrivedDataAsJSON, Project.class);
 				projectList.add(project);
 			} catch (IOException e) {
-				LOGGER.error("Error while processing retrieved projects ",e);
+				LOGGER.error("Error while processing retrieved projects ", e);
 			}
 
 		};

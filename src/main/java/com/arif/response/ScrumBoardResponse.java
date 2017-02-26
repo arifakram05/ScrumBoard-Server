@@ -1,7 +1,14 @@
-package com.fdu.response;
+package com.arif.response;
 
 import java.util.List;
 
+/**
+ * Each user request is served with the object of this class
+ * 
+ * @author arifakrammohammed
+ *
+ * @param <T>
+ */
 public class ScrumBoardResponse<T> {
 
 	private int code;

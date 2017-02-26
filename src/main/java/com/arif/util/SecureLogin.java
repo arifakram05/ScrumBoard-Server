@@ -17,6 +17,13 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/**
+ * used to genearate a JWT token for a user<br/>
+ * used to validate a user's JWT token
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class SecureLogin {
 
 	final static Logger LOGGER = Logger.getLogger(SecureLogin.class);
@@ -32,6 +39,7 @@ public class SecureLogin {
 	 *            how long can the user stay logged in
 	 * @return JWT token
 	 * @throws NoSuchAlgorithmException
+	 *             when SecretKey is null or while error during processing
 	 */
 	public static String createJWT(String associateId, long loginDuration) throws NoSuchAlgorithmException {
 
@@ -88,12 +96,14 @@ public class SecureLogin {
 	 * Verify if the given token and associate ID are related and valid
 	 * 
 	 * @param token
+	 *            JWT token provided by the user to validate
 	 * @param associateIdToVerify
-	 * @return boolean value indication the validity of provided associate ID
+	 *            associate trying to perform operation
+	 * @return <i>true</i> if given associate ID is valid
 	 */
 	public static boolean isTokenValid(String token, String associateIdToVerify) {
 		String knownAssociateId = Jwts.parser().setSigningKey(encodedSecretKey).parseClaimsJws(token).getBody().getId();
-		LOGGER.info("Verifying token for associate "+associateIdToVerify);
+		LOGGER.info("Verifying token for associate " + associateIdToVerify);
 		return associateIdToVerify.equals(knownAssociateId);
 	}
 

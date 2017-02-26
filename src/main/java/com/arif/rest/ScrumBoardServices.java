@@ -1,4 +1,4 @@
-package com.fdu.rest;
+package com.arif.rest;
 
 import java.io.IOException;
 
@@ -20,7 +20,8 @@ import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.ProjectNotes;
 import com.arif.model.Scrum;
-import com.fdu.response.ScrumBoardResponse;
+import com.arif.model.ScrumDetails;
+import com.arif.response.ScrumBoardResponse;
 import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/services")
@@ -32,7 +33,8 @@ public class ScrumBoardServices {
 	 * Validate user credentials and log-in
 	 * 
 	 * @param associateId
-	 * @return
+	 *            associate to log-in
+	 * @return {@link ScrumBoardResponse} containing {@link Associate} details
 	 * @throws JsonParseException
 	 * @throws JsonMappingException
 	 * @throws IOException
@@ -48,13 +50,15 @@ public class ScrumBoardServices {
 	}
 
 	/**
-	 * Add a new project.
+	 * Add a new project
 	 * 
-	 * @param formData
-	 * @return
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @param projectName
+	 *            name of the new project to add
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/project")
@@ -70,7 +74,7 @@ public class ScrumBoardServices {
 	/**
 	 * Returns all projects. Does not validate the token.
 	 * 
-	 * @return
+	 * @return {@link ScrumBoardResponse} containing {@link Project}s
 	 */
 	@GET
 	@Path("/projects")
@@ -84,12 +88,13 @@ public class ScrumBoardServices {
 	/**
 	 * Add/Update an associate
 	 * 
-	 * @param formData
-	 *            Associate Details to save
-	 * @return operation success or failure response
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @param associateDetails
+	 *            {@link Associate} details
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/associate")
@@ -105,12 +110,13 @@ public class ScrumBoardServices {
 	/**
 	 * Add a Scrum for a project
 	 * 
-	 * @param formData
-	 *            Scrum Details to save
-	 * @return operation success or failure response
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @param scrumDetails
+	 *            {@link ScrumDetails} to add
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/scrum")
@@ -126,7 +132,7 @@ public class ScrumBoardServices {
 	/**
 	 * Get Scrum details for the given date.
 	 * 
-	 * @return
+	 * @return {@link ScrumBoardResponse} containing {@link Scrum} details
 	 */
 	@POST
 	@Path("/scrumdetails")
@@ -136,14 +142,23 @@ public class ScrumBoardServices {
 			@FormDataParam("projectList") String projectList, @FormDataParam("associateId") String associateId,
 			@HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getScrumDetails(scrumDate, projectList, associateId, token);
+		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getScrumDetails(scrumDate, projectList,
+				associateId, token);
 		return response;
 	}
 
 	/**
 	 * Get Scrum details for the given date.
 	 * 
-	 * @return
+	 * @param scrumDate
+	 *            date
+	 * @param projectName
+	 *            project name
+	 * @param associateId
+	 *            associate doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing {@link Scrum} details
 	 */
 	@POST
 	@Path("/filteredscrumdetails")
@@ -153,14 +168,17 @@ public class ScrumBoardServices {
 			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
 			@HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getFilteredScrumDetails(scrumDate, projectName, associateId, token);
+		ScrumBoardResponse<Scrum> response = ScrumBoard.getInstance().getFilteredScrumDetails(scrumDate, projectName,
+				associateId, token);
 		return response;
 	}
 
 	/**
 	 * Return recent scrum record for the given project.
 	 * 
-	 * @return
+	 * @param projectName
+	 *            project name
+	 * @return {@link ScrumBoardResponse} containing {@link Scrum} details
 	 */
 	@GET
 	@Path("/latestScrum")
@@ -174,11 +192,17 @@ public class ScrumBoardServices {
 	/**
 	 * Update Scrum record of an associate for the given day.
 	 * 
-	 * @param formData
-	 * @return
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @param scrumDetails
+	 *            {@link ScrumDetails}
+	 * @param date
+	 *            date of the scrum
+	 * @param projectName
+	 *            project name
+	 * @param associateId
+	 *            associate doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/scrumupdate")
@@ -188,14 +212,18 @@ public class ScrumBoardServices {
 			@FormDataParam("date") String date, @FormDataParam("projectName") String projectName,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date, projectName, associateId, token); 
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveDailyScrumUpdate(scrumDetails, date,
+				projectName, associateId, token);
 		return response;
 	}
 
 	/**
-	 * Returns all projects. Does not validate the token.
+	 * Returns all projects notes for the given project. Does not check the request if JWT token present
 	 * 
-	 * @return
+	 * @param projectName
+	 *            project name
+	 * @return {@link ScrumBoardResponse} containing {@link ProjectNotes}
+	 *         details
 	 */
 	@GET
 	@Path("/projectNotes")
@@ -210,10 +238,14 @@ public class ScrumBoardServices {
 	 * Save a new project notes
 	 * 
 	 * @param projectNotes
+	 *            JSON containing {@link ProjectNotes}
 	 * @param projectName
+	 *            name of the project
 	 * @param associateId
+	 *            user doing this operation
 	 * @param token
-	 * @return
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/projectNote")
@@ -223,7 +255,8 @@ public class ScrumBoardServices {
 			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
 			@HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveNewProjectNotes(projectNotes, projectName, associateId, token); 
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().saveNewProjectNotes(projectNotes, projectName,
+				associateId, token);
 		return response;
 	}
 

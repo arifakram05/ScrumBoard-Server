@@ -1,4 +1,4 @@
-package com.fdu.constants;
+package com.arif.constants;
 
 public enum Constants {
 

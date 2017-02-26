@@ -4,6 +4,12 @@ import com.arif.util.ResourceReader;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * Provides database connection
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class DBConnecton {
 
 	private static MongoClient mongoClient;
@@ -28,6 +34,12 @@ public class DBConnecton {
 		return mongoClient;
 	}
 
+	/**
+	 * Get a connection with database; MongoDB internally handles Connection
+	 * Pooling
+	 * 
+	 * @return a <i>MongoDatabase</i> to interact with
+	 */
 	public static MongoDatabase getConnection() {
 		return mongoDatabase;
 	}

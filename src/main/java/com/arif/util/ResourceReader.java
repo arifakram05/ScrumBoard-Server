@@ -7,7 +7,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Reads properties file
+ * Reads properties file to get db configuration
  * 
  * @author arifakrammohammed
  *

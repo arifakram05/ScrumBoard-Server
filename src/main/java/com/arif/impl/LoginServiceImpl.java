@@ -1,4 +1,4 @@
-package com.arif.db;
+package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -9,14 +9,20 @@ import java.util.List;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.LoginService;
 import com.arif.model.Associate;
-import com.fdu.constants.Constants;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * contains all the logic realted to user login
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class LoginServiceImpl implements LoginService {
 
 	MongoDatabase database;
@@ -51,9 +57,9 @@ public class LoginServiceImpl implements LoginService {
 	 */
 	public Associate getAssociateDetails(String associateId) {
 		List<Associate> associateList = new ArrayList<>(1);
-		//get collection
+		// get collection
 		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
-		//process retrieved data
+		// process retrieved data
 		Block<Document> processRetreivedData = (document) -> {
 
 			String retrivedDataAsJSON = document.toJson();
@@ -65,10 +71,11 @@ public class LoginServiceImpl implements LoginService {
 				LOGGER.error("Error occurred while processing fetched associates data while login", e);
 			}
 		};
-		//query
-		associatesCollection.find(eq(Constants.ASSOCIATEID.getValue(), associateId.trim())).forEach(processRetreivedData);
-		
-		if(associateList.isEmpty()) {
+		// query
+		associatesCollection.find(eq(Constants.ASSOCIATEID.getValue(), associateId.trim()))
+				.forEach(processRetreivedData);
+
+		if (associateList.isEmpty()) {
 			return null;
 		}
 
@@ -77,9 +84,9 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public void validateInput(String associateId) throws ScrumBoardException {
-		if(!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
+		if (!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
 			throw new ScrumBoardException("Invalid input");
 		}
 	}
-		
+
 }

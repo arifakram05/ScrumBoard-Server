@@ -17,6 +17,11 @@
 		</repository>
 	</repositories>
 
+	<properties>
+		<!-- specify file encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -85,12 +90,6 @@
 			<artifactId>jjwt</artifactId>
 			<version>0.7.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
-		<dependency>
-			<groupId>org.owasp.esapi</groupId>
-			<artifactId>esapi</artifactId>
-			<version>2.1.0.1</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -98,6 +97,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>

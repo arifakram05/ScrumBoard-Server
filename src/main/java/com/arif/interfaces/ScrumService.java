@@ -9,12 +9,28 @@ import com.arif.exception.ScrumBoardException;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
-import com.fdu.response.ScrumBoardResponse;
+import com.arif.response.ScrumBoardResponse;
 
+/**
+ * Handles services related to Scrum
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public interface ScrumService {
 
 	final static Logger LOGGER = Logger.getLogger(ScrumService.class);
 
+	/**
+	 * performs validations on user input and adds a new scrum record for the
+	 * specified project
+	 * 
+	 * @param scrum
+	 *            scrum details to add
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 * @throws ParseException
+	 *             if something goes wrong with date manipulation
+	 */
 	default ScrumBoardResponse<Void> addScrum(Scrum scrum) throws ParseException {
 		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
 		// 1. validate the input
@@ -26,7 +42,7 @@ public interface ScrumService {
 			LOGGER.error("User Input Not Valid ", e);
 			// construct message with error details
 			response.setCode(404);
-			response.setMessage("End date should be greater than Start date");
+			response.setMessage(e.getMessage());
 			return response;
 		}
 		// 2. verify that no Scrum exists during the given dates
@@ -43,11 +59,21 @@ public interface ScrumService {
 		}
 		// if Scrum exists already
 		response.setCode(404);
-		response.setMessage(
-				"Scrum already exists for given start and end dates. Please verify and re-submit");
+		response.setMessage("Scrum already exists for given start and end dates. Please verify and re-submit");
 		return response;
 	}
 
+	/**
+	 * check if start date is less than end date<br/>
+	 * check if given scrum name does not contain special characters
+	 * 
+	 * @param scrum
+	 *            scrum details to add
+	 * @throws ScrumBoardException
+	 *             if user input is not per set rules
+	 * @throws ParseException
+	 *             if given dates are invalid
+	 */
 	void validateInput(Scrum scrum) throws ScrumBoardException, ParseException;
 
 	/**
@@ -55,15 +81,17 @@ public interface ScrumService {
 	 * 
 	 * @param scrum
 	 *            Scrum to check
-	 * @return
+	 * @return <i>true</i> if scrum already exists on given dates
 	 */
 	boolean isScrumExists(Scrum scrum);
 
 	/**
-	 * Add Scrum to the database
+	 * Add Scrum to a project
 	 * 
 	 * @param scrum
-	 *            Scrum to add
+	 *            scrum to add
+	 * @throws ParseException
+	 *             if date processing fails
 	 */
 	void authorizeScrum(Scrum scrum) throws ParseException;
 
@@ -71,8 +99,8 @@ public interface ScrumService {
 	 * Create Scrum details
 	 * 
 	 * @param projectName
-	 *            Name of the project
-	 * @return
+	 *            name of the project
+	 * @return {@link List} of {@link ScrumDetails}
 	 */
 	List<ScrumDetails> createScrumDetails(String projectName);
 
@@ -81,28 +109,33 @@ public interface ScrumService {
 	 * 
 	 * @param scrumDate
 	 *            Scrum date
-	 * @param projectName
-	 *            Project name
-	 * @return
+	 * @param projectList
+	 *            list of projects
+	 * @return {@link List} of {@link Scrum}
 	 */
 	List<Scrum> getScrumDetails(String scrumDate, List<Project> projectList);
 
 	/**
 	 * Save daily Scrum update of an associate
 	 * 
-	 * @param scrum
-	 * @param associateId
+	 * @param scrumDetails
+	 *            scrum details of given date
+	 * @param date
+	 *            date this record is be save against
 	 * @param projectName
-	 * @return
+	 *            name of the project
 	 */
 	void saveDailyScrumUpdate(ScrumDetails scrumDetails, String date, String projectName);
 
 	/**
-	 * Get filtered Scrum details on the specified date and for specified project
+	 * Get filtered Scrum details on the specified date and for specified
+	 * project
 	 * 
 	 * @param scrumDate
+	 *            date of scrum
 	 * @param projectName
-	 * @return
+	 *            name of the project
+	 * @return {@link List} of {@link Scrum}
 	 */
 	List<Scrum> getFilteredScrumDetails(String scrumDate, String projectName);
 
@@ -110,7 +143,8 @@ public interface ScrumService {
 	 * Get the most recent scrum record for the given project
 	 * 
 	 * @param projectName
-	 * @return
+	 *            name of the project
+	 * @return {@link List} of {@link Scrum}
 	 */
 	List<Scrum> getRecentScrumRecord(String projectName);
 }

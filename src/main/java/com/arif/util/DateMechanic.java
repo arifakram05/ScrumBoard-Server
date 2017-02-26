@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+/**
+ * Used to perform dates processing
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class DateMechanic {
 
 	private final static DateTimeFormatter dateTimeformatter = DateTimeFormatter.ofPattern("d MMM, yyyy");
@@ -17,9 +23,12 @@ public class DateMechanic {
 	 * Returns true if end date is greater than start date
 	 * 
 	 * @param startDate
+	 *            start date
 	 * @param endDate
-	 * @return
+	 *            end date
+	 * @return <i>true</i> if end date greater than start date, false otherwise
 	 * @throws ParseException
+	 *             if error while processing dates
 	 */
 	public static boolean isEndDateGreater(String startDate, String endDate) throws ParseException {
 		LocalDate startDateParsed = LocalDate.parse(startDate, dateTimeformatter);
@@ -32,9 +41,12 @@ public class DateMechanic {
 	 * inclusive
 	 * 
 	 * @param startDate
+	 *            start date
 	 * @param endDate
-	 * @return
+	 *            end date
+	 * @return {@link List} of all dates in {@link String} format
 	 * @throws ParseException
+	 *             if error while processing dates
 	 */
 	public static List<String> getAllDatesBetweenTwoDates(String startDate, String endDate) throws ParseException {
 

@@ -1,4 +1,4 @@
-package com.fdu.impl;
+package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -16,19 +16,25 @@ import java.util.regex.Pattern;
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ScrumService;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
 import com.arif.util.DateMechanic;
-import com.fdu.constants.Constants;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Block;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * contains all the logic for scrum services
+ * 
+ * @author arifakrammohammed
+ *
+ */
 public class ScrumServiceImpl implements ScrumService {
 
 	MongoDatabase database;
@@ -221,37 +227,37 @@ public class ScrumServiceImpl implements ScrumService {
 		if (!DateMechanic.isEndDateGreater(scrum.getStartDate(), scrum.getEndDate())) {
 			throw new ScrumBoardException("End date is smaller that the Start date");
 		}
-		//checking scrum Name
+		// checking scrum Name
 		String scrumName = scrum.getScrumName();
 		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
-        Matcher matcher = pattern.matcher(scrumName);
-        while(matcher.find()) {
-        	throw new ScrumBoardException("Invalid input");
-        }
+		Matcher matcher = pattern.matcher(scrumName);
+		while (matcher.find()) {
+			throw new ScrumBoardException("Scrum name cannot contain these characters [ < > \" ! \' : { } ]");
+		}
 	}
 
 	@Override
 	public List<Scrum> getFilteredScrumDetails(String scrumDate, String projectName) {
 		List<Scrum> scrumDetailsList = new ArrayList<>();
-		
+
 		// get collection
 		MongoCollection<Document> scrumDetailsCollection = database.getCollection(projectName);
 		// processed retrieved data
 		Block<Document> processRetreivedData = (document) -> {
 
 			String retrivedDataAsJSON = document.toJson();
-			Scrum scrum;			
+			Scrum scrum;
 			try {
 				scrum = new ObjectMapper().readValue(retrivedDataAsJSON, Scrum.class);
 				scrum.setProjectName(projectName);
 				scrumDetailsList.add(scrum);
 			} catch (IOException e) {
-				LOGGER.error("Error while processing retrieved filtered scrum details ",e);
+				LOGGER.error("Error while processing retrieved filtered scrum details ", e);
 			}
 
 		};
 		// query
-		scrumDetailsCollection.find(eq(Constants.ACTUALDATE.getValue(),scrumDate)).forEach(processRetreivedData);
+		scrumDetailsCollection.find(eq(Constants.ACTUALDATE.getValue(), scrumDate)).forEach(processRetreivedData);
 		LOGGER.info("All projects fetched");
 		return scrumDetailsList;
 	}
@@ -259,25 +265,26 @@ public class ScrumServiceImpl implements ScrumService {
 	@Override
 	public List<Scrum> getRecentScrumRecord(String projectName) {
 		List<Scrum> scrumDetailsList = new ArrayList<>(1);
-		
+
 		// get collection
 		MongoCollection<Document> scrumDetailsCollection = database.getCollection(projectName);
 		// processed retrieved data
 		Block<Document> processRetreivedData = (document) -> {
 
 			String retrivedDataAsJSON = document.toJson();
-			Scrum scrum;			
+			Scrum scrum;
 			try {
 				scrum = new ObjectMapper().readValue(retrivedDataAsJSON, Scrum.class);
 				scrum.setProjectName(projectName);
 				scrumDetailsList.add(scrum);
 			} catch (IOException e) {
-				LOGGER.error("Error while processing retrieved filtered scrum details ",e);
+				LOGGER.error("Error while processing retrieved filtered scrum details ", e);
 			}
 
 		};
 		// query
-		scrumDetailsCollection.find().sort(new Document(Constants.OBJECTID.getValue(), -1)).limit(1).forEach(processRetreivedData);
+		scrumDetailsCollection.find().sort(new Document(Constants.OBJECTID.getValue(), -1)).limit(1)
+				.forEach(processRetreivedData);
 		LOGGER.info("The most recent scrum record fetched");
 		return scrumDetailsList;
 	}

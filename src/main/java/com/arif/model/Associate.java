@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-import com.fdu.constants.Constants;
+import com.arif.constants.Constants;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Associate {
