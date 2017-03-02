@@ -1,5 +1,7 @@
 package com.arif.interfaces;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.arif.exception.ScrumBoardException;
@@ -20,7 +22,8 @@ public interface AssociateService {
 	 * Performs validations on the user input and then, Adds a new associate to
 	 * the system or updates an associate if already exists
 	 * 
-	 * @param associate {@link Associate} details to add or update
+	 * @param associate
+	 *            {@link Associate} details to add or update
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
 	default ScrumBoardResponse<Void> addAssociate(Associate associate) {
@@ -67,7 +70,8 @@ public interface AssociateService {
 	/**
 	 * check associates name and id for special characters
 	 * 
-	 * @param associate {@link Associate} details to validate
+	 * @param associate
+	 *            {@link Associate} details to validate
 	 * @throws ScrumBoardException
 	 *             if user input is not per set rules
 	 */
@@ -86,7 +90,8 @@ public interface AssociateService {
 	/**
 	 * TODO: index associate details for faster retrieval
 	 * 
-	 * @param associate {@link Associate} details to index
+	 * @param associate
+	 *            {@link Associate} details to index
 	 */
 	void index(Associate associate);
 
@@ -105,4 +110,13 @@ public interface AssociateService {
 	 *            {@link Associate} to update
 	 */
 	void updateAssociate(Associate associate);
+
+	/**
+	 * Search for all associates who match the search criteria
+	 *
+	 * @param searchText
+	 *            id/name of the associate to search
+	 * @return
+	 */
+	List<Associate> searchAssociates(String searchText);
 }

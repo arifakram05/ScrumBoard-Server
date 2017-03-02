@@ -260,4 +260,45 @@ public class ScrumBoardServices {
 		return response;
 	}
 
+	/**
+	 * Associate search by ID or Name
+	 *
+	 * @param searchText
+	 *            Id or Name of the associate
+	 * @return {@link ScrumBoardResponse} containing {@link Associate} details
+	 */
+	@GET
+	@Path("/searchAssociate")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Associate> searchAssociate(@QueryParam("associate") String searchText) {
+		ScrumBoardResponse<Associate> response = ScrumBoard.getInstance().searchAssociates(searchText);
+		return response;
+	}
+
+	/**
+	 * Add given associate to an existing scrum of a project
+	 *
+	 * @param scrumDetails
+	 *            existing scrum details
+	 * @param associateDetails
+	 *            associate to add
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
+	 */
+	@POST
+	@Path("/updateScrum")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> updateScrum(@FormDataParam("scrumDetails") String scrumDetails,
+			@FormDataParam("associateDetails") String associateDetails,
+			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
+
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().updateScrum(scrumDetails, associateDetails,
+				associateId, token);
+		return response;
+	}
+
 }

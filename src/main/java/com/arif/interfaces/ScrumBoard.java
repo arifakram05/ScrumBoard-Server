@@ -80,6 +80,22 @@ public interface ScrumBoard extends DBConnection {
 	ScrumBoardResponse<Void> addScrum(String scrumDetails, String associateId, String token);
 
 	/**
+	 * Add an associate to an existing scrum in a project
+	 *
+	 * @param scrumDetails
+	 *            existing scrum details
+	 * @param associateDetails
+	 *            associate to add
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> updateScrum(String scrumDetails, String associateDetails, String associateId,
+			String token);
+
+	/**
 	 * Get Scrum details for a given date and projects
 	 * 
 	 * @param scrumDate
@@ -145,6 +161,15 @@ public interface ScrumBoard extends DBConnection {
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
 	ScrumBoardResponse<ProjectNotes> getAllProjectNotes(String projectName);
+
+	/**
+	 * Search and return all associates that match the search string
+	 *
+	 * @param searchText
+	 *            name/id of the associate to search for
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Associate> searchAssociates(String searchText);
 
 	/**
 	 * Save a new project note

@@ -1,13 +1,16 @@
 package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bson.Document;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
@@ -15,9 +18,12 @@ import com.arif.interfaces.AssociateService;
 import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.mongodb.BasicDBObject;
+import com.mongodb.Block;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.TextSearchOptions;
 
 /**
  * Contains all the logic for handling services related to Associate
@@ -150,28 +156,21 @@ public class AssociateServiceImpl implements AssociateService {
 		}
 		// if projects is given, then add to existing list of projects
 		if (associate.getProjects() != null && !associate.getProjects().isEmpty()) {
-			List<DBObject> projectList = new ArrayList<DBObject>(associate.getProjects().size());
-			/*
-			 * associate.getProjects().forEach(project ->
-			 * processProject(project, projectList));
-			 * detailsToUpdate.put("projects", projectList);
-			 */
 
 			BasicDBObject dbObject = new BasicDBObject();
 			associate.getProjects().forEach(project -> {
 
 				dbObject.put(Constants.PROJECTNAME.getValue(), project.getProjectName());
 				dbObject.put(Constants.PROJECTID.getValue(), null);
-				projectList.add(dbObject);
 
-				projectDetailsDocument.put("projects", dbObject);
+				projectDetailsDocument.put(Constants.PROJECTS.getValue(), dbObject);
 
 				Document command = new Document();
 				// add an item to existing array, does not add when duplicate
 				command.put("$addToSet", projectDetailsDocument);
 
 				// update projects query
-				associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);
+				associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
 			});
 		}
 
@@ -179,7 +178,30 @@ public class AssociateServiceImpl implements AssociateService {
 		command.put("$set", associateDetailsDocument);
 
 		// update associate name and role query
-		associatesCollection.updateOne(eq("associateId", associate.getAssociateId()), command);
+		associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
+	}
+
+	@Override
+	public List<Associate> searchAssociates(String searchText) {
+		// get collection
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
+		List<Associate> associateList = new ArrayList<>();
+		// process each retrieved record
+		Block<Document> processRetreivedData = (document) -> {
+
+			String retrivedDataAsJSON = document.toJson();
+			Associate associate;
+			try {
+				associate = new ObjectMapper().readValue(retrivedDataAsJSON, Associate.class);
+				associateList.add(associate);
+			} catch (IOException e) {
+				LOGGER.error("Error occurred while processing retrieved associate details for search associates operation");
+			}
+		};
+		/*in order to do a text search, you must have already created an index on associates collection, otherwise mongoDB throws error*/
+		//associatesCollection.find(new BasicDBObject("$text", new BasicDBObject("$search", searchText))).forEach(processRetreivedData);
+		associatesCollection.find(text(searchText, new TextSearchOptions().caseSensitive(false))).forEach(processRetreivedData);
+		return associateList;
 	}
 
 }

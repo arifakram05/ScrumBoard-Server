@@ -174,6 +174,43 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
+	public ScrumBoardResponse<Void> updateScrum(String scrumDetails, String associateDetails, String associateId, String token) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();;
+		Scrum scrum;
+		Associate associate;
+		LOGGER.info("Request for udpate scrum from " + associateId);
+		try {
+			// validate token
+			if (validateToken(token, associateId)) {
+				LOGGER.info(
+						"Token is valid for associate " + associateId + ". Proceeding ahead with processing request");
+				// convert JSON to POJO
+				scrum = new ObjectMapper().readValue(scrumDetails, Scrum.class);
+				associate = new ObjectMapper().readValue(associateDetails, Associate.class);
+				// as token is valid, proceed with request
+				getScrumServiceInstance().updateScrum(scrum, associate);
+				response.setCode(200);
+				response.setMessage("Associate has been added successfully for scrum in the project "+scrum.getProjectName());
+				LOGGER.info(
+						"Associate has been added successfully for scrum in the project "+  scrum.getProjectName() +" between " + scrum.getStartDate() + " " + scrum.getEndDate());
+			} else {
+				// as token is invalid, do not process the request
+				LOGGER.info(
+						"Token is not valid for associate " + associateId + ". Cannot proceed ahead with the request");
+				response.setCode(403);
+				response.setMessage(
+						"System cannot proceed with your operation for security reasons. Please re-login and perform the operation again");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error occurred while processing request ", e);
+			response.setCode(500);
+			response.setMessage("Error Occurred. Could not add associate to the Scrum");
+		}
+
+		return response;
+	}
+
+	@Override
 	public ScrumBoardResponse<Scrum> getScrumDetails(String scrumDate, String projectList, String associateId,
 			String token) {
 		ScrumBoardResponse<Scrum> response = null;
@@ -366,6 +403,25 @@ public class ScrumBoardImpl implements ScrumBoard {
 					"Error Ocurred. Could not add an associate to the system. Re-Login and try the operation again");
 		}
 
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<Associate> searchAssociates(String searchText) {
+		ScrumBoardResponse<Associate> response = new ScrumBoardResponse<>();
+		List<Associate> associateList = null;
+		try {
+			LOGGER.info("Preparing to search for associates with pattern: "+searchText);
+			associateList = getAssociateServiceInstance().searchAssociates(searchText);
+			LOGGER.info("Associates searched and retrieved number is "+associateList.size());
+			response.setCode(200);
+			response.setMessage("List of all associates that match search criteria");
+			response.setResponse(associateList);
+		} catch (Exception e) {
+			LOGGER.error("Error while fetching associates per search criteria", e);
+			response.setCode(500);
+			response.setMessage("Error occurred. Could not retrieve associates per your search criteria");
+		}
 		return response;
 	}
 

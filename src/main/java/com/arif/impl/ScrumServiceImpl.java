@@ -19,6 +19,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ScrumService;
+import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
@@ -287,5 +288,54 @@ public class ScrumServiceImpl implements ScrumService {
 				.forEach(processRetreivedData);
 		LOGGER.info("The most recent scrum record fetched");
 		return scrumDetailsList;
+	}
+
+	@Override
+	public void updateScrum(Scrum scrum, Associate associate) {
+		// 1. check whether associate is already added to given project
+		/*
+		 * if associate is already part of the given project, then the
+		 * associate's project list should have the given project. If not,
+		 * add given project to associate first, then continue with adding the
+		 * associate to the project's scrum
+		 */
+		// check whether associate is already part of given project
+		Project existingProject = associate.getProjects().stream()
+				.filter(p -> scrum.getProjectName().equals(p.getProjectName())).findAny().orElse(null);
+		// if associate is not part of the given project, add to the project
+		if(existingProject == null) {
+			Project project = new Project();
+			project.setProjectId(null);
+			project.setProjectName(scrum.getProjectName());
+			List<Project> projectList = new ArrayList<>(1);
+			projectList.add(project);
+			associate.setProjects(projectList);
+			// update associate information with new project
+			new AssociateServiceImpl(database).updateAssociate(associate);
+		}
+
+		// 2. add associate into given on-going scrum
+		// get collection
+		MongoCollection<Document> scrumCollection = database.getCollection(scrum.getProjectName());
+
+		// create document to save
+		Document scrumDocument = new Document();
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId());
+		dbObject.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName());
+		dbObject.put(Constants.YESTERDAY.getValue(), null);
+		dbObject.put(Constants.TODAY.getValue(), null);
+		dbObject.put(Constants.ROADBLOCKS.getValue(), null);
+		scrumDocument.put(Constants.SCRUMDETAILS.getValue(), dbObject);
+
+		Document command = new Document();
+		// add an item to existing array, does not add when duplicate
+		command.put("$addToSet", scrumDocument);
+
+		if (associate.getAssociateId() != null && associate.getAssociateName() != null) {
+			// update scrum query
+			scrumCollection.updateMany(and(eq(Constants.STARTDATE.getValue(), scrum.getStartDate()),
+					eq(Constants.ENDDATE.getValue(), scrum.getEndDate())), command);
+		}
 	}
 }

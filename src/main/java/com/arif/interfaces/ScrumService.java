@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.arif.exception.ScrumBoardException;
+import com.arif.model.Associate;
 import com.arif.model.Project;
 import com.arif.model.Scrum;
 import com.arif.model.ScrumDetails;
@@ -147,4 +148,15 @@ public interface ScrumService {
 	 * @return {@link List} of {@link Scrum}
 	 */
 	List<Scrum> getRecentScrumRecord(String projectName);
+
+	/**
+	 * Add given associate to already existing given scrum<br/>
+	 * If an associate is not part of the given project, then add him
+	 *
+	 * @param scrum
+	 *            scrum of a project
+	 * @param associate
+	 *            associate to add
+	 */
+	void updateScrum(Scrum scrum, Associate associate);
 }
