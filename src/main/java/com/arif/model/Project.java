@@ -7,6 +7,8 @@ public class Project {
 
 	String projectId;
 	String projectName;
+	String dateCreated;
+	String projectStatus;
 
 	public String getProjectId() {
 		return projectId;
@@ -22,5 +24,21 @@ public class Project {
 
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
+	}
+
+	public String getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(String dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public String getProjectStatus() {
+		return projectStatus;
+	}
+
+	public void setProjectStatus(String projectStatus) {
+		this.projectStatus = projectStatus;
 	}
 }

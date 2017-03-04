@@ -36,28 +36,23 @@ public class ProjectServiceImpl implements ProjectService {
 		this.database = database;
 	}
 
-	/**
-	 * Insert a new project document into the project collection
-	 * 
-	 * @param projectName
-	 * @return
-	 */
-	public void addProject(String projectName) {
+	@Override
+	public void addProject(Project project) {
 		// get collection
 		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
 		// create document
 		Document document = new Document();
-		document.append(Constants.PROJECTNAME.getValue(), projectName.trim());
-		document.append(Constants.PROJECTID.getValue(), null);// TODO : generate
-																// projectId
-																// value
+		document.append(Constants.PROJECTNAME.getValue(), project.getProjectName().trim());
+		document.append(Constants.PROJECTID.getValue(), null);
+		document.append(Constants.DATECREATED.getValue(), project.getDateCreated());
+		document.append(Constants.PROJECTSTATUS.getValue(), project.getProjectStatus());
 		// save document
 		projectsCollection.insertOne(document);
 	}
 
 	@Override
 	public void validateInput(String projectName) throws ScrumBoardException {
-		// anti XSS vulnerabilityl
+		// anti XSS vulnerability
 		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
 		Matcher matcher = pattern.matcher(projectName);
 		while (matcher.find()) {
@@ -95,5 +90,32 @@ public class ProjectServiceImpl implements ProjectService {
 		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
 		// query
 		return projectsCollection.count(eq(Constants.PROJECTNAME.getValue(), projectName.trim())) != 0 ? true : false;
+	}
+
+	@Override
+	public boolean isProjectActive(String projectName) {
+		boolean isProjectActive = false;
+		List<Project> projectList = new ArrayList<>(1);
+		// get collection
+		MongoCollection<Document> projectsCollection = database.getCollection(Constants.PROJECTS.getValue());
+		// processed retrieved data
+		Block<Document> processRetreivedData = (document) -> {
+
+			String retrivedDataAsJSON = document.toJson();
+			Project project;
+			try {
+				project = new ObjectMapper().readValue(retrivedDataAsJSON, Project.class);
+				projectList.add(project);
+			} catch (IOException e) {
+				LOGGER.error("Error while processing retrieved project ", e);
+			}
+
+		};
+		// query
+		projectsCollection.find(eq(Constants.PROJECTNAME.getValue(), projectName.trim())).forEach(processRetreivedData);
+		if(!projectList.isEmpty() && projectList.get(0).getProjectStatus().equals(Constants.ACTIVE.getValue())) {
+			isProjectActive = true;
+		}
+		return isProjectActive;
 	}
 }

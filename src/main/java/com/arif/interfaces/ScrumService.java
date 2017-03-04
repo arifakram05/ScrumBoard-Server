@@ -43,14 +43,21 @@ public interface ScrumService {
 			LOGGER.error("User Input Not Valid ", e);
 			// construct message with error details
 			response.setCode(404);
-			response.setMessage(e.getMessage());
+			response.setMessage("Scrum Name cannot contain < > \" ! \' : { } ] characters");
 			return response;
 		}
-		// 2. verify that no Scrum exists during the given dates
+		// 2. check if project is active because scrum only exists for active projects
+		if(!isProjectActive(scrum.getProjectName())) {
+			// construct message with error details
+			response.setCode(404);
+			response.setMessage("Selected project - "+scrum.getProjectName()+", is INACTIVE. Scrum cannot be added to inactive projects");
+			return response;
+		}
+		// 3. verify that no Scrum exists during the given dates
 		if (!isScrumExists(scrum)) {
-			// 3. create ScrumDetails list
+			// 4. create ScrumDetails list
 			List<ScrumDetails> scrumDetailsList = createScrumDetails(scrum.getProjectName());
-			// 4. add Scrum to the system
+			// 5. add Scrum to the system
 			scrum.setScrumDetails(scrumDetailsList);
 			authorizeScrum(scrum);
 			// send success response
@@ -158,5 +165,43 @@ public interface ScrumService {
 	 * @param associate
 	 *            associate to add
 	 */
-	void updateScrum(Scrum scrum, Associate associate);
+	void authorizeUpdateScrum(Scrum scrum, Associate associate);
+
+	/**
+	 * Add given associate to already existing given scrum<br/>
+	 * First checks whether given project is active, and also updates the scrum
+	 * if the project is active
+	 *
+	 * @param scrum
+	 *            scrum of a project
+	 * @param associate
+	 *            associate to add
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	default ScrumBoardResponse<Void> updateScrum(Scrum scrum, Associate associate) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
+		// 1. check if project is active because scrum only exists for active
+		// projects
+		if (!isProjectActive(scrum.getProjectName())) {
+			// construct message with error details
+			response.setCode(404);
+			response.setMessage("You cannot add associates to INACTIVE project - " + scrum.getProjectName()
+					+ ". Scrum does not exist for inactive projects");
+			return response;
+		}
+		// 2. if the selected project is active, add associate to it
+		authorizeUpdateScrum(scrum, associate);
+		response.setCode(200);
+		response.setMessage("Associate has been added successfully for scrum in the project " + scrum.getProjectName());
+		return response;
+	}
+
+	/**
+	 * check if the given project is active or inactive
+	 *
+	 * @param projectName
+	 *            name of the project
+	 * @return true is project is active, false otherwise
+	 */
+	boolean isProjectActive(String projectName);
 }

@@ -20,6 +20,11 @@ public enum Constants {
 	//fields in projects
 	PROJECTNAME("projectName"),
 	PROJECTID("projectId"),
+	DATECREATED("dateCreated"),
+	PROJECTSTATUS("projectStatus"),
+
+	ACTIVE("active"),
+	INACTIVE("inactive"),
 
 	//fields
 	ACTUALDATE("actualDate"),

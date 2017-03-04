@@ -291,7 +291,7 @@ public class ScrumServiceImpl implements ScrumService {
 	}
 
 	@Override
-	public void updateScrum(Scrum scrum, Associate associate) {
+	public void authorizeUpdateScrum(Scrum scrum, Associate associate) {
 		// 1. check whether associate is already added to given project
 		/*
 		 * if associate is already part of the given project, then the
@@ -337,5 +337,10 @@ public class ScrumServiceImpl implements ScrumService {
 			scrumCollection.updateMany(and(eq(Constants.STARTDATE.getValue(), scrum.getStartDate()),
 					eq(Constants.ENDDATE.getValue(), scrum.getEndDate())), command);
 		}
+	}
+
+	@Override
+	public boolean isProjectActive(String projectName) {
+		return new ProjectServiceImpl(database).isProjectActive(projectName);
 	}
 }

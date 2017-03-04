@@ -35,7 +35,7 @@ public interface ScrumBoard extends DBConnection {
 	/**
 	 * Add a new project
 	 * 
-	 * @param projectName
+	 * @param project
 	 *            project to add
 	 * @param associateId
 	 *            user who is performing this operation
@@ -43,7 +43,7 @@ public interface ScrumBoard extends DBConnection {
 	 *            user's JWT Token
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
-	ScrumBoardResponse<Void> addProject(String projectName, String associateId, String token);
+	ScrumBoardResponse<Void> addProject(String project, String associateId, String token);
 
 	/**
 	 * get all projects

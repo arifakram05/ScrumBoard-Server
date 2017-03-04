@@ -64,10 +64,10 @@ public class ScrumBoardServices {
 	@Path("/project")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<Void> saveProject(@FormDataParam("projectName") String projectName,
+	public ScrumBoardResponse<Void> saveProject(@FormDataParam("project") String project,
 			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
 
-		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addProject(projectName, associateId, token);
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addProject(project, associateId, token);
 		return response;
 	}
 

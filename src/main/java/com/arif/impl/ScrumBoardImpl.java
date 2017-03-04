@@ -54,17 +54,19 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
-	public ScrumBoardResponse<Void> addProject(String projectName, String associateId, String token) {
+	public ScrumBoardResponse<Void> addProject(String projectDetails, String associateId, String token) {
 		ScrumBoardResponse<Void> response = null;
 		try {
-			LOGGER.info("Adding project request recieved from " + associateId + " for project " + projectName);
+			LOGGER.info("Adds project request recieved from " + associateId);
+			Project project;
 			// validate token
 			if (validateToken(token, associateId)) {
 				// as token is valid, proceed with request
 				LOGGER.info(
 						"Token is valid for associate " + associateId + ". Proceeding ahead with processing request");
-				response = getProjectServiceInstance().addProject(projectName, associateId);
-				LOGGER.info("Project successfully added - " + projectName);
+				project = new ObjectMapper().readValue(projectDetails, Project.class);
+				response = getProjectServiceInstance().addProject(project, associateId);
+				LOGGER.info("Project successfully added - " + project.getProjectName());
 			} else {
 				// as token is invalid, do not process the request
 				LOGGER.info(
@@ -188,9 +190,7 @@ public class ScrumBoardImpl implements ScrumBoard {
 				scrum = new ObjectMapper().readValue(scrumDetails, Scrum.class);
 				associate = new ObjectMapper().readValue(associateDetails, Associate.class);
 				// as token is valid, proceed with request
-				getScrumServiceInstance().updateScrum(scrum, associate);
-				response.setCode(200);
-				response.setMessage("Associate has been added successfully for scrum in the project "+scrum.getProjectName());
+				response = getScrumServiceInstance().updateScrum(scrum, associate);
 				LOGGER.info(
 						"Associate has been added successfully for scrum in the project "+  scrum.getProjectName() +" between " + scrum.getStartDate() + " " + scrum.getEndDate());
 			} else {
