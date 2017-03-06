@@ -271,7 +271,7 @@ public class ScrumBoardServices {
 	 *            user doing this operation
 	 * @param token
 	 *            JWT token
-	 * @return
+	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
 	@Path("/delete/projectNote")
@@ -281,6 +281,31 @@ public class ScrumBoardServices {
 			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
 			@HeaderParam("Authorization") String token) {
 		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().deleteProjectNotes(projectNotes, projectName,
+				associateId, token);
+		return response;
+	}
+
+	/**
+	 * update a given notes from a given project
+	 * 
+	 * @param projectNotes
+	 *            notes to edit
+	 * @param projectName
+	 *            name of the project given notes belongs to
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return {@link ScrumBoardResponse} containing response details
+	 */
+	@POST
+	@Path("/update/projectNote")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> editProjectNotes(@FormDataParam("projectNotes") String projectNotes,
+			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
+			@HeaderParam("Authorization") String token) {
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().updateProjectNotes(projectNotes, projectName,
 				associateId, token);
 		return response;
 	}

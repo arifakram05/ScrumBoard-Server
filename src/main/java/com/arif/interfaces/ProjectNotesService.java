@@ -101,4 +101,20 @@ public interface ProjectNotesService {
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
 	ScrumBoardResponse<Void> deleteProjectNotes(ProjectNotes projectNotes, String projectName, String associateId);
+
+	/**
+	 * update given project notes<br/>
+	 * check whether given associate has access to the project being delete;
+	 * proceeds with the operation only if associate belongs to project under
+	 * processing
+	 * 
+	 * @param projectNotes
+	 *            notes to update
+	 * @param projectName
+	 *            name of the project
+	 * @param associateId
+	 *            associate performing this operation
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> updateProjectNotes(ProjectNotes projectNotes, String projectName, String associateId);
 }

@@ -18,6 +18,7 @@ import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ProjectNotesService;
 import com.arif.model.ProjectNotes;
 import com.arif.response.ScrumBoardResponse;
+import com.mongodb.BasicDBObject;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -57,7 +58,7 @@ public class ProjectNotesServiceImpl implements ProjectNotesService {
 
 		};
 		// query
-		projectsCollection.find().forEach(processRetreivedData);
+		projectsCollection.find().sort(new Document(Constants.OBJECTID.getValue(), -1)).forEach(processRetreivedData);
 		LOGGER.info("All project notes fetched");
 		return projectNotesList;
 	}
@@ -74,6 +75,8 @@ public class ProjectNotesServiceImpl implements ProjectNotesService {
 		document.put(Constants.CREATEDON.getValue(), projectNotes.getCreatedOn());
 		document.put(Constants.AUTHOR.getValue(), projectNotes.getAuthor());
 		document.put(Constants.NOTESFIELD.getValue(), projectNotes.getNotes().trim());
+		document.put(Constants.EDITORS.getValue(), new ArrayList<>(1));
+		document.put(Constants.LASTUPDATEDON.getValue(), null);
 
 		// save document
 		projectsNotesCollection.insertOne(document);
@@ -95,21 +98,74 @@ public class ProjectNotesServiceImpl implements ProjectNotesService {
 			String associateId) {
 		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
 		// 1. check if associate belongs to the given project
-		boolean isAssociateBelongsToProject = new AssociateServiceImpl(database).isAssociateBelongsToProject(projectName, associateId);
+		boolean isAssociateBelongsToProject = new AssociateServiceImpl(database)
+				.isAssociateBelongsToProject(projectName, associateId);
 		if (isAssociateBelongsToProject) {
-			//ObjectId id = new ObjectId(projectNotes.get_id());
-			// 2. proceed with project notes deletion
-			// get collection
+			// 2. proceed with project notes deletion get collection
 			MongoCollection<Document> projectsNotesCollection = database
 					.getCollection(projectName + Constants.NOTES.getValue());
 			// query
-			projectsNotesCollection.deleteOne(eq(Constants.OBJECTID.getValue(), new ObjectId(projectNotes.get_id().toString())));
+			projectsNotesCollection
+					.deleteOne(eq(Constants.OBJECTID.getValue(), new ObjectId(projectNotes.get_id().toString())));
 			response.setCode(200);
 			response.setMessage("Notes deleted");
 			return response;
 		} else {
 			response.setCode(404);
-			response.setMessage("You are not allowed to perform this operation as you do not belong to the project - "+projectName);
+			response.setMessage("You are not allowed to perform this operation as you do not belong to the project - "
+					+ projectName);
+			return response;
+		}
+	}
+
+	@Override
+	public ScrumBoardResponse<Void> updateProjectNotes(ProjectNotes projectNotes, String projectName,
+			String associateId) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
+		// 1. check if associate belongs to the given project
+		boolean isAssociateBelongsToProject = new AssociateServiceImpl(database)
+				.isAssociateBelongsToProject(projectName, associateId);
+		if (isAssociateBelongsToProject) {
+			// ObjectId id = new ObjectId(projectNotes.get_id());
+			// 2. proceed with project notes deletion get collection
+			MongoCollection<Document> projectsNotesCollection = database
+					.getCollection(projectName + Constants.NOTES.getValue());
+			// create document to save
+			Document detailsToUpdate = new Document();
+			detailsToUpdate.put(Constants.NOTESFIELD.getValue(), projectNotes.getNotes());
+			detailsToUpdate.put(Constants.TITLE.getValue(), projectNotes.getTitle());
+			detailsToUpdate.put(Constants.LASTUPDATEDON.getValue(), projectNotes.getLastUpdatedOn());
+			// updating project notes editors
+			if (projectNotes.getEditors() != null && !projectNotes.getEditors().isEmpty()) {
+
+				BasicDBObject dbObject = new BasicDBObject();
+				projectNotes.getEditors().forEach(editor -> {
+
+					dbObject.put(Constants.EDITORS.getValue(), editor);
+
+					Document updateEditorsCmd = new Document();
+					// add an item to existing array, does not add when duplicate
+					updateEditorsCmd.put("$addToSet", dbObject);
+
+					// update project notes editors query
+					projectsNotesCollection.updateOne(
+							eq(Constants.OBJECTID.getValue(), new ObjectId(projectNotes.get_id().toString())),
+							updateEditorsCmd);
+				});
+			}
+
+			Document command = new Document();
+			command.put("$set", detailsToUpdate);
+			// query
+			projectsNotesCollection.updateOne(eq(Constants.OBJECTID.getValue(), new ObjectId(projectNotes.get_id().toString())), command);
+			// construct response
+			response.setCode(200);
+			response.setMessage("Notes updated");
+			return response;
+		} else {
+			response.setCode(404);
+			response.setMessage("You are not allowed to perform this operation as you do not belong to the project - "
+					+ projectName);
 			return response;
 		}
 	}

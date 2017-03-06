@@ -204,6 +204,22 @@ public interface ScrumBoard extends DBConnection {
 			String token);
 
 	/**
+	 * update a notes from a project
+	 * 
+	 * @param projectNotes
+	 *            JSON string containing {@link ProjectNotes} to update
+	 * @param projectName
+	 *            name of the project this notes is associated with
+	 * @param associateId
+	 *            user who is performing this operation
+	 * @param token
+	 *            user's JWT token
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> updateProjectNotes(String projectNotes, String projectName, String associateId,
+			String token);
+
+	/**
 	 * Java 8 feature.<br/>
 	 * Get an object of the implementations class
 	 * 
