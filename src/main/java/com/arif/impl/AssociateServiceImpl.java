@@ -1,6 +1,7 @@
 package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.text;
 
 import java.io.IOException;
@@ -201,6 +202,15 @@ public class AssociateServiceImpl implements AssociateService {
 		//associatesCollection.find(new BasicDBObject("$text", new BasicDBObject("$search", searchText))).forEach(processRetreivedData);
 		associatesCollection.find(text(searchText, new TextSearchOptions().caseSensitive(false))).forEach(processRetreivedData);
 		return associateList;
+	}
+
+	@Override
+	public boolean isAssociateBelongsToProject(String projectName, String associateId) {
+		// get collection
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
+		// query
+		long count = associatesCollection.count(and(eq(Constants.ASSOCIATEID.getValue(), associateId), eq("projects.projectName", projectName)));
+		return (count > 0) ? true : false;
 	}
 
 }

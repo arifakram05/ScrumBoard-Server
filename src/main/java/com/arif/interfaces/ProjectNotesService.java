@@ -78,11 +78,27 @@ public interface ProjectNotesService {
 
 	/**
 	 * check project title has any special characters
-	 * 
+	 *
 	 * @param projectNotes
 	 *            new notes details
 	 * @throws ScrumBoardException
 	 *             if user input is not per set rules
 	 */
 	void validateInput(ProjectNotes projectNotes) throws ScrumBoardException;
+
+	/**
+	 * delete given project notes<br/>
+	 * check whether given associate has access to the project being delete;
+	 * proceeds with the operation only if associate belongs to project under
+	 * processing
+	 *
+	 * @param projectNotes
+	 *            notes to delete
+	 * @param projectName
+	 *            name of the project
+	 * @param associateId
+	 *            associate performing this operation
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> deleteProjectNotes(ProjectNotes projectNotes, String projectName, String associateId);
 }

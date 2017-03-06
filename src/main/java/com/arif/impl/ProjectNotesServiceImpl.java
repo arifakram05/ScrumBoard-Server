@@ -1,5 +1,7 @@
 package com.arif.impl;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +10,14 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.arif.constants.Constants;
 import com.arif.exception.ScrumBoardException;
 import com.arif.interfaces.ProjectNotesService;
 import com.arif.model.ProjectNotes;
+import com.arif.response.ScrumBoardResponse;
 import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -83,6 +87,30 @@ public class ProjectNotesServiceImpl implements ProjectNotesService {
 		Matcher matcher = pattern.matcher(title);
 		while (matcher.find()) {
 			throw new ScrumBoardException("Invalid input");
+		}
+	}
+
+	@Override
+	public ScrumBoardResponse<Void> deleteProjectNotes(ProjectNotes projectNotes, String projectName,
+			String associateId) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
+		// 1. check if associate belongs to the given project
+		boolean isAssociateBelongsToProject = new AssociateServiceImpl(database).isAssociateBelongsToProject(projectName, associateId);
+		if (isAssociateBelongsToProject) {
+			//ObjectId id = new ObjectId(projectNotes.get_id());
+			// 2. proceed with project notes deletion
+			// get collection
+			MongoCollection<Document> projectsNotesCollection = database
+					.getCollection(projectName + Constants.NOTES.getValue());
+			// query
+			projectsNotesCollection.deleteOne(eq(Constants.OBJECTID.getValue(), new ObjectId(projectNotes.get_id().toString())));
+			response.setCode(200);
+			response.setMessage("Notes deleted");
+			return response;
+		} else {
+			response.setCode(404);
+			response.setMessage("You are not allowed to perform this operation as you do not belong to the project - "+projectName);
+			return response;
 		}
 	}
 

@@ -7,6 +7,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectNotes {
 
+	private Object _id;
 	private String title;
 	private String createdOn;
 	private String lastUpdatedOn;
@@ -19,6 +20,18 @@ public class ProjectNotes {
 	 */
 	private List<String> editors;
 	private String notes;
+
+	public Object get_id() {
+		return _id;
+	}
+
+	public void set_id(Object _id) {
+		this._id = _id;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
 	public String getTitle() {
 		return title;

@@ -119,4 +119,16 @@ public interface AssociateService {
 	 * @return
 	 */
 	List<Associate> searchAssociates(String searchText);
+
+	/**
+	 * check if given associate belongs to the given project
+	 *
+	 * @param projectName
+	 *            project name
+	 * @param associateId
+	 *            associate Id
+	 * @return true if given associate is part of the given project, false
+	 *         otherwise
+	 */
+	boolean isAssociateBelongsToProject(String projectName, String associateId);
 }

@@ -261,6 +261,31 @@ public class ScrumBoardServices {
 	}
 
 	/**
+	 * delete a notes from a project
+	 * 
+	 * @param projectNotes
+	 *            notes to delete
+	 * @param projectName
+	 *            name of the project a note belongs to
+	 * @param associateId
+	 *            user doing this operation
+	 * @param token
+	 *            JWT token
+	 * @return
+	 */
+	@POST
+	@Path("/delete/projectNote")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> deleteProjectNotes(@FormDataParam("projectNotes") String projectNotes,
+			@FormDataParam("projectName") String projectName, @FormDataParam("associateId") String associateId,
+			@HeaderParam("Authorization") String token) {
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().deleteProjectNotes(projectNotes, projectName,
+				associateId, token);
+		return response;
+	}
+
+	/**
 	 * Associate search by ID or Name
 	 *
 	 * @param searchText
