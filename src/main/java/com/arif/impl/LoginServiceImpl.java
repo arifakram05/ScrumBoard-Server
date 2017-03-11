@@ -5,6 +5,8 @@ import static com.mongodb.client.model.Filters.eq;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -84,7 +86,9 @@ public class LoginServiceImpl implements LoginService {
 
 	@Override
 	public void validateInput(String associateId) throws ScrumBoardException {
-		if (!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+		Matcher matcher = pattern.matcher(associateId);
+		while (matcher.find()) {
 			throw new ScrumBoardException("Invalid input");
 		}
 	}

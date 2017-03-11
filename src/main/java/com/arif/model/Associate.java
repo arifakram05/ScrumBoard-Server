@@ -11,6 +11,7 @@ public class Associate {
 
 	String associateId;
 	String associateName;
+	String emailId;
 	String role;
 	String title;
 	List<Project> projects;
@@ -29,6 +30,14 @@ public class Associate {
 
 	public void setAssociateName(String associateName) {
 		this.associateName = associateName;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
 	}
 
 	public String getRole() {

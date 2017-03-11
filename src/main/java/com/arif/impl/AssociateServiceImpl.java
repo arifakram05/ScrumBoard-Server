@@ -63,6 +63,7 @@ public class AssociateServiceImpl implements AssociateService {
 		// add document properties
 		document.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
 		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());
+		document.put(Constants.ASSOCIATEEMAIL.getValue(), associate.getEmailId().trim());
 		if (associate.getTitle() == null || associate.getTitle().isEmpty()) {
 			associate.setTitle(Constants.TEAMMEMBERTITLE.getValue());
 			document.put(Constants.TITLE.getValue(), associate.getTitle());
@@ -121,14 +122,15 @@ public class AssociateServiceImpl implements AssociateService {
 	public void validateInput(Associate associate) throws ScrumBoardException {
 		// checking associate Id
 		String associateId = associate.getAssociateId();
-		if (!associateId.matches(Constants.NUMBERS_ONLY.getValue())) {
+		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
+		Matcher matcher = pattern.matcher(associateId);
+		while (matcher.find()) {
 			throw new ScrumBoardException("Invalid input");
 		}
 
 		// checking associate Name
 		String associateName = associate.getAssociateName();
-		Pattern pattern = Pattern.compile(Constants.RESTRICT.getValue());
-		Matcher matcher = pattern.matcher(associateName);
+		matcher = pattern.matcher(associateName);
 		while (matcher.find()) {
 			throw new ScrumBoardException("Invalid input");
 		}
@@ -149,6 +151,9 @@ public class AssociateServiceImpl implements AssociateService {
 
 		if (associate.getAssociateName() != null && !associate.getAssociateName().trim().isEmpty()) {
 			associateDetailsDocument.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
+		}
+		if (associate.getEmailId() != null && !associate.getEmailId().trim().isEmpty()) {
+			associateDetailsDocument.put(Constants.ASSOCIATEEMAIL.getValue(), associate.getEmailId().trim());
 		}
 		if (associate.getTitle() != null) {
 			associateDetailsDocument.put(Constants.TITLE.getValue(), associate.getTitle());
