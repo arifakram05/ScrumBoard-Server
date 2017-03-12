@@ -169,11 +169,26 @@ public class AssociateServiceImpl implements AssociateService {
 		// get collection
 		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
 
+		// create document to save
+		Document associateDetailsDocument = new Document();
+
+		// reset password
+		if(associate.getPassword() != null && !associate.getPassword().isEmpty()) {
+			associateDetailsDocument.put(Constants.PASSWORD.getValue(), associate.getAssociateId());
+
+			Document command = new Document();
+			command.put("$set", associateDetailsDocument);
+
+			// update associate name and role query
+			associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
+			return;
+		}
+
+		// the following updates associate details other that password
+
 		boolean isUpdateAssocProjectsOnly = true;
 		// updating associate name and role will be handled separately from projects
 
-		// create document to save
-		Document associateDetailsDocument = new Document();
 		Document projectDetailsDocument = new Document();// in order to save array of Projects
 
 		if (associate.getAssociateName() != null && !associate.getAssociateName().trim().isEmpty()) {

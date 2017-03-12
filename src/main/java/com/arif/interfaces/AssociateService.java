@@ -70,7 +70,11 @@ public interface AssociateService {
 					+ " - already exists, so proceeding with updating user details");
 			updateAssociate(associate);
 			response.setCode(200);
-			response.setMessage("Updated associate info");
+			if(associate.getPassword() != null && !associate.getPassword().isEmpty()) {
+				response.setMessage("Associate password reset");
+			} else {
+				response.setMessage("Updated associate info");
+			}
 			return response;
 		}
 	}
