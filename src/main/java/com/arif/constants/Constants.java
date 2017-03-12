@@ -17,6 +17,7 @@ public enum Constants {
 	ASSOCIATENAME("associateName"),
 	ASSOCIATEEMAIL("emailId"),
 	ROLE("role"),
+	PASSWORD("password"),
 
 	//fields in projects
 	PROJECTNAME("projectName"),

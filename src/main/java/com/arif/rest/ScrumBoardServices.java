@@ -1,7 +1,5 @@
 package com.arif.rest;
 
-import java.io.IOException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -10,10 +8,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 
 import com.arif.interfaces.ScrumBoard;
 import com.arif.model.Associate;
@@ -27,25 +21,58 @@ import com.sun.jersey.multipart.FormDataParam;
 @Path("/services")
 public class ScrumBoardServices {
 
-	final static Logger logger = Logger.getLogger(ScrumBoardServices.class);
+	/**
+	 * Register a new user
+	 * 
+	 * @param associateDetails
+	 *            new user details
+	 * @param isRegistration
+	 *            indicates if a new associate is being added or an existing one
+	 *            is being updated
+	 * @return {@link ScrumBoardResponse} containing response details
+	 */
+	@POST
+	@Path("/register")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> register(@FormDataParam("associateDetails") String associateDetails,
+			@QueryParam("isRegistration") boolean isRegistration) {
+
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().register(associateDetails, isRegistration);
+		return response;
+	}
 
 	/**
 	 * Validate user credentials and log-in
 	 * 
-	 * @param associateId
+	 * @param associateDetails
 	 *            associate to log-in
 	 * @return {@link ScrumBoardResponse} containing {@link Associate} details
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
 	 */
 	@POST
 	@Path("/login")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public ScrumBoardResponse<Associate> login(String associateId) {
+	public ScrumBoardResponse<Associate> login(@FormDataParam("associateDetails") String associateDetails) {
 
-		ScrumBoardResponse<Associate> response = ScrumBoard.getInstance().login(associateId);
+		ScrumBoardResponse<Associate> response = ScrumBoard.getInstance().login(associateDetails);
+		return response;
+	}
+
+	/**
+	 * update user password
+	 * 
+	 * @param associateDetails
+	 *            associate whose password is to be updated
+	 * @return {@link ScrumBoardResponse} containing response details
+	 */
+	@POST
+	@Path("/update/password/")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ScrumBoardResponse<Void> updatePassword(@FormDataParam("associateDetails") String associateDetails) {
+
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().updatePassword(associateDetails);
 		return response;
 	}
 
@@ -94,6 +121,9 @@ public class ScrumBoardServices {
 	 *            user doing this operation
 	 * @param token
 	 *            JWT token
+	 * @param isRegistration
+	 *            indicates if a new associate is being added or an existing one
+	 *            is being updated
 	 * @return {@link ScrumBoardResponse} containing response details
 	 */
 	@POST
@@ -101,9 +131,11 @@ public class ScrumBoardServices {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public ScrumBoardResponse<Void> saveAssociate(@FormDataParam("associateDetails") String associateDetails,
-			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token) {
+			@FormDataParam("associateId") String associateId, @HeaderParam("Authorization") String token,
+			@QueryParam("isRegistration") boolean isRegistration) {
 
-		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addAssociate(associateDetails, associateId, token);
+		ScrumBoardResponse<Void> response = ScrumBoard.getInstance().addAssociate(associateDetails, associateId, token,
+				isRegistration);
 		return response;
 	}
 

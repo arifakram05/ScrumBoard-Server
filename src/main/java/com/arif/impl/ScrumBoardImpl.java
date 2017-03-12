@@ -39,16 +39,56 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
-	public ScrumBoardResponse<Associate> login(String associateId) {
-		ScrumBoardResponse<Associate> response = null;
+	public ScrumBoardResponse<Void> register(String associateDetails, boolean isRegistration) {
+		ScrumBoardResponse<Void> response = null;
+		Associate associate = null;
 		try {
-			LOGGER.info("Logging in " + associateId);
-			response = getLoginServiceInstance().login(associateId);
-			LOGGER.info("Logging in " + associateId + " success");
+			associate = new ObjectMapper().readValue(associateDetails, Associate.class);
+			LOGGER.info("Registering new user " + associate.getAssociateId());
+			response = getAssociateServiceInstance().addAssociate(associate, isRegistration);
+			LOGGER.info("Registering user " + associate.getAssociateId() + " success");
 		} catch (Exception e) {
-			LOGGER.error("Error while logging in the user " + associateId, e);
+			LOGGER.error("Error while registering new user " + associate.getAssociateId(), e);
+			response = new ScrumBoardResponse<>();
+			response.setCode(500);
+			response.setMessage("Error Occurred while registering you");
+		}
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<Associate> login(String associateDetails) {
+		ScrumBoardResponse<Associate> response = null;
+		Associate associate = null;
+		try {
+			associate = new ObjectMapper().readValue(associateDetails, Associate.class);
+			LOGGER.info("Logging in " + associate.getAssociateId());
+			response = getLoginServiceInstance().login(associate);
+			LOGGER.info("Logging in " + associate.getAssociateId() + " success");
+		} catch (Exception e) {
+			LOGGER.error("Error while logging in the user " + associate.getAssociateId(), e);
+			response = new ScrumBoardResponse<>();
 			response.setCode(500);
 			response.setMessage("Error Occurred while logging you in");
+		}
+		return response;
+	}
+
+	@Override
+	public ScrumBoardResponse<Void> updatePassword(String associateDetails) {
+		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
+		Associate associate = null;
+		try {
+			associate = new ObjectMapper().readValue(associateDetails, Associate.class);
+			LOGGER.info("Changing password for " + associate.getAssociateId());
+			getAssociateServiceInstance().updatePassword(associate);
+			response.setCode(200);
+			response.setMessage("Password updated. Please log-in");
+			LOGGER.info("Changing password for " + associate.getAssociateId() + " done");
+		} catch (Exception e) {
+			LOGGER.error("Error while updating password for the user " + associate.getAssociateId(), e);
+			response.setCode(500);
+			response.setMessage("Error occurred while updating your password");
 		}
 		return response;
 	}
@@ -106,7 +146,7 @@ public class ScrumBoardImpl implements ScrumBoard {
 	}
 
 	@Override
-	public ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token) {
+	public ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token, boolean isRegistration) {
 		ScrumBoardResponse<Void> response;
 		Associate associate;
 		LOGGER.info("Preparing to add or update an associate");
@@ -118,7 +158,7 @@ public class ScrumBoardImpl implements ScrumBoard {
 				// convert JSON to POJO
 				associate = new ObjectMapper().readValue(associateDetails, Associate.class);
 				// as token is valid, proceed with request
-				response = getAssociateServiceInstance().addAssociate(associate);
+				response = getAssociateServiceInstance().addAssociate(associate, isRegistration);
 				LOGGER.info("Associated added/updated successfully");
 			} else {
 				// as token is invalid, do not process the request

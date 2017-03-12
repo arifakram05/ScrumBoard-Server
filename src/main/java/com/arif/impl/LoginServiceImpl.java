@@ -1,6 +1,7 @@
 package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.and;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,11 +54,11 @@ public class LoginServiceImpl implements LoginService {
 	/**
 	 * fetches given associates's details
 	 * 
-	 * @param associateId
-	 *            Id of an associate
+	 * @param associate
+	 *            associate details
 	 * @return {@link Associate}
 	 */
-	public Associate getAssociateDetails(String associateId) {
+	public Associate getAssociateDetails(Associate loginDetails) {
 		List<Associate> associateList = new ArrayList<>(1);
 		// get collection
 		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
@@ -74,7 +75,9 @@ public class LoginServiceImpl implements LoginService {
 			}
 		};
 		// query
-		associatesCollection.find(eq(Constants.ASSOCIATEID.getValue(), associateId.trim()))
+		associatesCollection
+				.find(and(eq(Constants.ASSOCIATEID.getValue(), loginDetails.getAssociateId().trim()),
+						eq(Constants.PASSWORD.getValue(), loginDetails.getPassword())))
 				.forEach(processRetreivedData);
 
 		if (associateList.isEmpty()) {

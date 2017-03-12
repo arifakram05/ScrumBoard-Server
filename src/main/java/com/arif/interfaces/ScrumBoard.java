@@ -23,14 +23,35 @@ import com.arif.response.ScrumBoardResponse;
 public interface ScrumBoard extends DBConnection {
 
 	/**
-	 * login a user to use system services
+	 * Add a new user to the system
 	 * 
-	 * @param associateId
-	 *            user to login
+	 * @param associateDetails
+	 *            new user details
+	 * @param isRegistration
+	 *            indicates if a new associate is being added or an existing one
+	 *            is being updated
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> register(String associateDetails, boolean isRegistration);
+
+	/**
+	 * Login a user to use system services
+	 * 
+	 * @param associateDetails
+	 *            user details to authenticate
 	 * @return a {@link ScrumBoardResponse} containing {@link Associate} details
 	 *         or failure details
 	 */
-	ScrumBoardResponse<Associate> login(String associateId);
+	ScrumBoardResponse<Associate> login(String associateDetails);
+
+	/**
+	 * Update a given user's password
+	 * 
+	 * @param associateDetails
+	 *            associate whose password is to be updated
+	 * @return a {@link ScrumBoardResponse} containing operation status
+	 */
+	ScrumBoardResponse<Void> updatePassword(String associateDetails);
 
 	/**
 	 * Add a new project
@@ -62,9 +83,11 @@ public interface ScrumBoard extends DBConnection {
 	 *            user who is performing this operation
 	 * @param token
 	 *            user's JWT token
+	 * @param isRegistration
+	 *            indicates if operation is to add new associate or update an existing associate
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
-	ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token);
+	ScrumBoardResponse<Void> addAssociate(String associateDetails, String associateId, String token, boolean isRegistration);
 
 	/**
 	 * Add Scrum for a project

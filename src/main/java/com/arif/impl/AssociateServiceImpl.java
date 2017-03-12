@@ -63,6 +63,7 @@ public class AssociateServiceImpl implements AssociateService {
 		// add document properties
 		document.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
 		document.put(Constants.ASSOCIATEID.getValue(), associate.getAssociateId().trim());
+		document.put(Constants.PASSWORD.getValue(), associate.getPassword());
 		document.put(Constants.ASSOCIATEEMAIL.getValue(), associate.getEmailId().trim());
 		if (associate.getTitle() == null || associate.getTitle().isEmpty()) {
 			associate.setTitle(Constants.TEAMMEMBERTITLE.getValue());
@@ -89,6 +90,22 @@ public class AssociateServiceImpl implements AssociateService {
 
 		// save document
 		projectsCollection.insertOne(document);
+	}
+
+	@Override
+	public void updatePassword(Associate associate) {
+		// get collection
+		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
+
+		// create document to save
+		Document associateDetailsDocument = new Document();
+		associateDetailsDocument.put(Constants.PASSWORD.getValue(), associate.getPassword().trim());
+
+		Document command = new Document();
+		command.put("$set", associateDetailsDocument);
+
+		// update associate name and role query
+		associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
 	}
 
 	/**
@@ -129,10 +146,21 @@ public class AssociateServiceImpl implements AssociateService {
 		}
 
 		// checking associate Name
-		String associateName = associate.getAssociateName();
-		matcher = pattern.matcher(associateName);
-		while (matcher.find()) {
-			throw new ScrumBoardException("Invalid input");
+		if(associate.getAssociateName() != null && !associate.getAssociateName().trim().isEmpty()) {
+			String associateName = associate.getAssociateName();
+			matcher = pattern.matcher(associateName);
+			while (matcher.find()) {
+				throw new ScrumBoardException("Invalid input");
+			}
+		}
+
+		// checking associate Email
+		if(associate.getEmailId() != null && !associate.getEmailId().trim().isEmpty()) {
+			String email = associate.getEmailId();
+			matcher = pattern.matcher(email);
+			while (matcher.find()) {
+				throw new ScrumBoardException("Invalid input");
+			}
 		}
 	}
 
@@ -141,23 +169,25 @@ public class AssociateServiceImpl implements AssociateService {
 		// get collection
 		MongoCollection<Document> associatesCollection = database.getCollection(Constants.ASSOCIATES.getValue());
 
-		// updating associate name and role will be handled separately from
-		// projects
+		boolean isUpdateAssocProjectsOnly = true;
+		// updating associate name and role will be handled separately from projects
 
 		// create document to save
 		Document associateDetailsDocument = new Document();
-		Document projectDetailsDocument = new Document();// in order to save
-															// array of Projects
+		Document projectDetailsDocument = new Document();// in order to save array of Projects
 
 		if (associate.getAssociateName() != null && !associate.getAssociateName().trim().isEmpty()) {
 			associateDetailsDocument.put(Constants.ASSOCIATENAME.getValue(), associate.getAssociateName().trim());
+			isUpdateAssocProjectsOnly = false;
 		}
 		if (associate.getEmailId() != null && !associate.getEmailId().trim().isEmpty()) {
 			associateDetailsDocument.put(Constants.ASSOCIATEEMAIL.getValue(), associate.getEmailId().trim());
+			isUpdateAssocProjectsOnly = false;
 		}
 		if (associate.getTitle() != null) {
 			associateDetailsDocument.put(Constants.TITLE.getValue(), associate.getTitle());
 			associateDetailsDocument.put(Constants.ROLE.getValue(), associate.getRoleFromTitle(associate.getTitle()));
+			isUpdateAssocProjectsOnly = false;
 		}
 		// if projects is given, then add to existing list of projects
 		if (associate.getProjects() != null && !associate.getProjects().isEmpty()) {
@@ -179,11 +209,13 @@ public class AssociateServiceImpl implements AssociateService {
 			});
 		}
 
-		Document command = new Document();
-		command.put("$set", associateDetailsDocument);
+		if(!isUpdateAssocProjectsOnly) {
+			Document command = new Document();
+			command.put("$set", associateDetailsDocument);
 
-		// update associate name and role query
-		associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
+			// update associate name and role query
+			associatesCollection.updateOne(eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId()), command);
+		}
 	}
 
 	@Override
@@ -198,6 +230,7 @@ public class AssociateServiceImpl implements AssociateService {
 			Associate associate;
 			try {
 				associate = new ObjectMapper().readValue(retrivedDataAsJSON, Associate.class);
+				associate.setPassword(null);
 				associateList.add(associate);
 			} catch (IOException e) {
 				LOGGER.error("Error occurred while processing retrieved associate details for search associates operation");

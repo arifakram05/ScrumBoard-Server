@@ -20,13 +20,13 @@ public interface AssociateService {
 
 	/**
 	 * Performs validations on the user input and then, Adds a new associate to
-	 * the system or updates an associate if already exists
+	 * the system
 	 * 
 	 * @param associate
 	 *            {@link Associate} details to add or update
 	 * @return a {@link ScrumBoardResponse} containing operation status
 	 */
-	default ScrumBoardResponse<Void> addAssociate(Associate associate) {
+	default ScrumBoardResponse<Void> addAssociate(Associate associate, boolean isRegistration) {
 		ScrumBoardResponse<Void> response = new ScrumBoardResponse<>();
 		// 1. validate the input
 		try {
@@ -40,18 +40,24 @@ public interface AssociateService {
 			response.setMessage("Associate details cannot contain these characters [ <> \" ! \' : { } ]");
 			return response;
 		}
-		// 2. check if associate does not exist
-		if (!isAssociateExists(associate)) {
-			LOGGER.info("Adding new associate - " + associate.getAssociateId());
-			// If associates does not exist, do the following
-			// 3. index record for fast search
-			index(associate);
-			// 4. add associate to the system
-			authorizeAssociate(associate);
-			// send success response
-			response.setCode(200);
-			response.setMessage("Associate Added Successfully");
-			return response;
+		// 2. check if associate does not exist i.e. if new associate
+		if(isRegistration) {
+			if (!isAssociateExists(associate)) {
+				LOGGER.info("Adding new associate - " + associate.getAssociateId());
+				// If associates does not exist, do the following
+				// 3. index record for fast search
+				index(associate);
+				// 4. add associate to the system
+				authorizeAssociate(associate);
+				// send success response
+				response.setCode(200);
+				response.setMessage("Registration Successful");
+				return response;
+			} else {
+				response.setCode(404);
+				response.setMessage("Associate already exists. If you forgot your password, please check with your lead to reset it");
+				return response;
+			}
 		}
 		/*
 		 * as associate already exists, perform update i.e. take all not-null
@@ -59,12 +65,14 @@ public interface AssociateService {
 		 * associate id
 		 */
 		// 3. Update associate
-		LOGGER.info("Associate - " + associate.getAssociateId()
-				+ " - already exists, so proceeding with updating user details");
-		updateAssociate(associate);
-		response.setCode(200);
-		response.setMessage("Associate already exists in the system. So, updated the associate with given details");
-		return response;
+		else {
+			LOGGER.info("Associate - " + associate.getAssociateId()
+					+ " - already exists, so proceeding with updating user details");
+			updateAssociate(associate);
+			response.setCode(200);
+			response.setMessage("Updated associate info");
+			return response;
+		}
 	}
 
 	/**
@@ -110,6 +118,14 @@ public interface AssociateService {
 	 *            {@link Associate} to update
 	 */
 	void updateAssociate(Associate associate);
+
+	/**
+	 * Update given user's password
+	 * 
+	 * @param associate
+	 *            associate whose password is to be updated
+	 */
+	void updatePassword(Associate associate);
 
 	/**
 	 * Search for all associates who match the search criteria

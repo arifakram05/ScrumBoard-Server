@@ -11,6 +11,7 @@ public class Associate {
 
 	String associateId;
 	String associateName;
+	String password;
 	String emailId;
 	String role;
 	String title;
@@ -30,6 +31,14 @@ public class Associate {
 
 	public void setAssociateName(String associateName) {
 		this.associateName = associateName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getEmailId() {
