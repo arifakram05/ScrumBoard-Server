@@ -2,6 +2,7 @@ package com.arif.impl;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.elemMatch;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
@@ -317,6 +318,15 @@ public class ScrumServiceImpl implements ScrumService {
 		// 2. add associate into given on-going scrum
 		// get collection
 		MongoCollection<Document> scrumCollection = database.getCollection(scrum.getProjectName());
+
+		// check if associate is part of the scrum already
+		long recordsNum = scrumCollection.count(elemMatch(Constants.SCRUMDETAILS.getValue(), eq(Constants.ASSOCIATEID.getValue(), associate.getAssociateId())));
+		if(recordsNum > 0) {
+			// as assocaite is part of the scrum, do not process the request
+			LOGGER.info("As associate is already part of the scurm, not proceeding ahead with the request");
+			return;
+		}
+		// add associate if not part of the scrum
 
 		// create document to save
 		Document scrumDocument = new Document();
