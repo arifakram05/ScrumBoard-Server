@@ -56,7 +56,9 @@ public enum Constants {
 	//associate role
 	TEAMMEMBER("member"),
 	SCRUMMASTER("admin"),
-	TEAMLEAD("lead");
+	TEAMLEAD("lead"),
+
+	MEDIATYPE("application/json");
 
 	private String value;
 

@@ -20,7 +20,7 @@
 
 	<servlet-mapping>
 		<servlet-name>jersey-serlvet</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 
 	<filter>
@@ -30,7 +30,7 @@
 	
 	<filter-mapping>
 		<filter-name>appFilter</filter-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/rest/*</url-pattern>
 	</filter-mapping>
 	
 	<listener>
@@ -39,4 +39,7 @@
         </listener-class>
    </listener>
 
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
 </web-app>
